@@ -28,3 +28,29 @@ export const createAccount = async (coord: Coord, email: string, password: strin
         console.log('createAccount ex', JSON.stringify(ex));
     }
 }
+
+export const loginAccount = async (coord: Coord, email: string, password: string) => {
+    console.log('loginAccount', coord, email);
+    try {
+
+        const { data } = await axios.post(
+            `${API_BASE}/employees/signup`,
+            {
+                email: email,
+                password: password,
+                coord: coord
+            },
+            {
+                headers: { 'Content-Type': 'application/json' }
+            }
+
+        );
+
+        console.log('loginAccount response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('loginAccount ex', JSON.stringify(ex));
+    }
+}
+
