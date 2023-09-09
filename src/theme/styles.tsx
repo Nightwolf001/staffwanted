@@ -1,10 +1,20 @@
 import { StyleSheet } from 'react-native';
+import { white, black } from './colors';
 
 const styles = StyleSheet.create({
     wrapper: {
         position: 'relative',
         flex: 1,
         justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: white,
+    },
+    container_curved: {
+        flex: 3, 
+        paddingTop: 20,
+        width: '100%', 
+        borderTopEndRadius: 35, 
+        borderTopStartRadius: 35,
         alignItems: "center",
     },
     container: {
@@ -64,11 +74,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    background_image: {
+        flex: 1,
+        width: '100%',
+        position: 'relative',
+        resizeMode: "contain",
+        backGroundPosition: 'top',
+    },
     image: {
         flex: 1,
         width: '100%',
         resizeMode: "contain",
-        backGroundPosition: 'top',
+        alignSelf: 'center'
+    },
+    xs_image : {
+        flex: 1,
+        width: '60%',
+        resizeMode: "contain",
+        alignSelf: 'center'
     },
     image_container: {
         flex: 1,
@@ -80,20 +103,20 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         textAlign: 'center',
         fontSize: 26,
-        color: '#fff',
+        color: white,
     },
     current_temp: {
         fontWeight: 'bold',
         textAlign: 'center',
         fontSize: 55,
-        color: '#fff',
+        color: white,
     },
     current_temp_desc: {
         marginTop: 10,
         textTransform: 'uppercase',
         textAlign: 'center',
         fontSize: 26,
-        color: '#fff',
+        color: white,
     },
     row_wrapper : {
         display: 'flex',
@@ -105,7 +128,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     divider: {
-        borderBottomColor: '#fff',
+        borderBottomColor: white,
         borderBottomWidth: 1,
         marginTop: 15,
         marginBottom: 25,
@@ -124,28 +147,28 @@ const styles = StyleSheet.create({
     },
     body1: {
         fontSize: 18,
-        color: '#fff',
+        color: white,
     },
     body2: {
         fontSize: 14,
-        color: '#fff',
+        color: white,
     },
     icon_wrapper: {
         justifyContent: 'center',
         alignItems: 'center',
     },
     icon: {
-        tintColor: '#fff',
+        tintColor: white,
         width: 30,
         height: 30,
     },
     modal_txt: {
-        color: '#fff',
+        color: white,
         fontWeight: 'bold',
         fontSize: 16,
     },
     modal_txt_alt: {
-        color: '#000',
+        color: black,
         fontWeight: 'bold',
         fontSize: 16,
     },
@@ -170,7 +193,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     modal_heading_txt: {
-        color: '#000',
+        color: black,
         fontWeight: 'bold',
         fontSize: 22,        
     },
@@ -192,6 +215,35 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0
+    },
+
+    // Text Global
+    text_white_heading: {
+        color: white,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+
+    // Splash / Landing
+    splash_image: {
+        flex: 1,
+        width: '80%',
+        resizeMode: "contain",
+        alignSelf: 'center'
+    },
+    // welcome
+    logo: {
+        flex: 1,
+        width: '70%',
+        resizeMode: "contain",
+        alignSelf: 'center'
+    },
+    welcome_btn_container: {
+        flex: 1,
+        padding: 16,
+        width: '100%',
+        position: 'absolute',
+        bottom: 40,
     }
 });
 

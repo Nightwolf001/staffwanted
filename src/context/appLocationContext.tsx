@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Alert, AppState, AppStateStatus } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import { updateSavedLocation } from '../redux/reducers/locations.reducer';
+// import { updateSavedLocation } from '../redux/reducers/locations.reducer';
 import { Coord } from '../types';
 
 // Create the app state context
@@ -57,10 +57,10 @@ const AppLocationProvider: React.FC<{ children: React.ReactNode }> = ({ children
             async (position) => {
                 let { latitude, longitude } = position.coords;
                 setCoord({ lat: latitude.toString(), lng: longitude.toString() });                
-                dispatch(updateSavedLocation({
-                    coord: { lat: latitude.toString(), lng: longitude.toString() },
-                    name: 'Current Location',
-                }));                
+                // dispatch(updateSavedLocation({
+                //     coord: { lat: latitude.toString(), lng: longitude.toString() },
+                //     name: 'Current Location',
+                // }));                
             },
             (error) => {
                 Alert.alert(
