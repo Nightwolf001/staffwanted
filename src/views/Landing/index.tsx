@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from "react";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { Text, View, Image } from "react-native";
+import { View, Image } from "react-native";
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

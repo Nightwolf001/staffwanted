@@ -1,17 +1,21 @@
 import React, { FC, useEffect, useState } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import moment from 'moment';
+
 import { View, Image, ScrollView } from "react-native";
 import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
 import Dropdown from 'react-native-input-select';
 import { Container, Row, Col } from 'react-native-flex-grid';
-import moment from 'moment';
+
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { User, JobRolesList, GenderList, PreferredHoursList, PreviousExperiencesList } from '../../types';
+import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 import { createProfile, fetchGenders } from "../../actions/account.actions";
-import { fetchJobRoles } from "../../actions/jobs.actions";
 
 import { styles } from "../../theme/styles";
 
@@ -19,30 +23,38 @@ const CreateProfile: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
+    const user_state = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const [all_job_roles, setAllJobRoles] = useState<any>([]);
     const [all_genders, setAllGenders] = useState<any>([]);
+    const [preferred_hours, setPreferredHours] = useState<any>([]);
+    const [previous_experiences, setPreviousExperiences] = useState<any>([]);
     const [dateDobOpen, setDateDobOpen] = useState(false);
     const [dateStartOpen, setDateStartOpen] = useState(false);
     const [dateEndOpen, setDateEndOpen] = useState(false);
 
-    const [dob, setDob] = useState<any>(null);
-    const [start_date, setStartDate] = useState<any>(null);
-    const [end_date, setEndDate] = useState<any>(null);
-    const [job_roles, setJobRoles] = useState<any>({});
-    const [gender, setGender] = useState<any>({});
-    const [previous_experience, setPreviousExperience] = useState<any>([]);
-
+    const [user, setUser] = useState<User>(user_state);
+    const [submitting, setSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
 
             let genders = await fetchGenders();
+            console.log('genders', genders)
             setAllGenders(genders?.data);
 
             let jobs = await fetchJobRoles();
+            console.log('jobs', jobs)
             setAllJobRoles(jobs?.data);
+
+            let previousExperiences = await fetchPreviousExperiences();
+            console.log('previousExperiences', previousExperiences)
+            setPreviousExperiences(previousExperiences?.data);
+
+            let preferredHours = await fetchPreferredHours();
+            console.log('preferredHours', preferredHours)
+            setPreferredHours(preferredHours?.data);
 
         })()
     }, []);
@@ -55,7 +67,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setDob(formattedDate);
+        setUser({ ...user, date_of_birth: formattedDate });
         setDateDobOpen(false);
     };
     const handleDateDobCancel = () => {
@@ -70,27 +82,43 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setStartDate(formattedDate);
+        setUser({ ...user, start_date: formattedDate });
         setDateStartOpen(false);
     };
     const handleDateStartCancel = () => {
         setDateStartOpen(false);
     };
 
-    const handleDateEndSave = (start_date: any) => {
-        const momentDate = moment(start_date.date);
+    const handleDateEndSave = (end_date: any) => {
+        const momentDate = moment(end_date.date);
         if (!momentDate.isValid()) {
             console.log('Invalid date');
             return;
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setEndDate(formattedDate);
+        setUser({ ...user, end_date: formattedDate });
         setDateEndOpen(false);
     };
     const handleDateEndCancel = () => {
         setDateEndOpen(false);
     };
+
+    const handleCreateProfile = async () => {
+        setSubmitting(true);
+        console.log('handleCreateProfile: ', user);
+        // let response = await createProfile(user);
+        setSubmitting(false);
+        // console.log('data', response.data);
+
+        // if (response !== 9001) {
+        //     console.log('data.attributes', response.data.attributes);
+        //     dispatch(setUser(response.data.attributes));
+        //     navigation.navigate('TabNavigation', { screen: 'Home' });
+        // } else {
+        //     onToggleSnackBar();
+        // }
+    }
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
@@ -109,6 +137,8 @@ const CreateProfile: FC = () => {
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
+                                    value={user.first_name}
+                                    onChangeText={(text) => setUser({ ...user, first_name: text })}
                                 />
                             </Col>
                             <Col style={{ marginBottom: 9}} xs="12">
@@ -118,6 +148,20 @@ const CreateProfile: FC = () => {
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
+                                    value={user.last_name}
+                                    onChangeText={(text) => setUser({ ...user, last_name: text })}
+                                />
+                            </Col>
+                            <Col style={{ marginBottom: 9 }} xs="12">
+                                <TextInput
+                                    mode='outlined'
+                                    placeholder="Phone Number"
+                                    keyboardType="phone-pad"
+                                    placeholderTextColor={theme.colors.primary}
+                                    outlineColor={theme.colors.primary}
+                                    outlineStyle={{ borderRadius: 15 }}
+                                    value={user.phone_number}
+                                    onChangeText={(text) => setUser({ ...user, phone_number: text })}
                                 />
                             </Col>
                             <Col style={{ marginBottom: 15 }} xs="12">
@@ -128,7 +172,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={dob}
+                                        value={user.date_of_birth ? moment(user.date_of_birth).format('DD-MM-YYYY') : undefined}
                                         onFocus={() => setDateDobOpen(true)}
                                         onBlur={() => setDateDobOpen(false)}
                                         onTouchStart={() => setDateDobOpen(true)}
@@ -142,7 +186,7 @@ const CreateProfile: FC = () => {
                                         visible={dateDobOpen}
                                         mode="single"
                                         onDismiss={handleDateDobCancel}
-                                        date={dob}
+                                        date={user.date_of_birth ? new Date(user.date_of_birth) : undefined}
                                         onConfirm={handleDateDobSave}
                                         saveLabel="Save"
                                         label="Select Date of Birth"
@@ -155,14 +199,14 @@ const CreateProfile: FC = () => {
                                     <Dropdown
                                         key={'all_genders'}
                                         placeholder="Select Gender"
-                                        isMultiple={true}
+                                        // isMultiple={true}
                                         placeholderStyle={{ color: theme.colors.primary }}
                                         dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                         options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
                                             { value: gender.id, label: gender.attributes.name }
                                         ))}
-                                        selectedValue={gender}
-                                        onValueChange={(value: any) => setGender(value)}
+                                        selectedValue={user.gender}
+                                        onValueChange={(value: any) => setUser({ ...user, gender: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
@@ -174,6 +218,8 @@ const CreateProfile: FC = () => {
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
+                                    value={user.location}
+                                    onChangeText={(text) => setUser({ ...user, location: text })}
                                 />
                             </Col>
                             {all_job_roles.length !== 0 &&
@@ -187,8 +233,8 @@ const CreateProfile: FC = () => {
                                     options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
                                         { value: job.id, label: job.attributes.role }
                                     ))}
-                                    selectedValue={job_roles}
-                                    onValueChange={(value: any) => setJobRoles(value)}
+                                    selectedValue={user.job_roles}
+                                    onValueChange={(value: any) => setUser({ ...user, job_roles: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col>
@@ -198,46 +244,46 @@ const CreateProfile: FC = () => {
                                     mode='outlined'
                                     placeholder="Experience/qualifications and/or what you are doing now"
                                     multiline={true}
+                                    maxLength={50}
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
+                                    value={user.work_description}
+                                    onChangeText={(text) => setUser({ ...user, work_description: text })}
                                 />
                             </Col>
+                            {previous_experiences.length !== 0 &&
                             <Col style={{ marginBottom: 15}} xs="12">
                                 <Dropdown
                                     placeholder="Previous Experience"
-                                    isMultiple={true}
+                                    // isMultiple={true}
                                     placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
-                                    options={[
-                                        { label: 'None', value: 'none' },
-                                        { label: '0 - 3 Months', value: 'zero to three months' },
-                                        { label: '3 - 12 Months', value: 'three to twelve months' },
-                                        { label: '12 Months +', value: 'twelve months plus' },
-                                    ]}
-                                    selectedValue={previous_experience}
-                                    onValueChange={(value: any) => setPreviousExperience(value)}
+                                    options={previous_experiences.length !== 0 && previous_experiences?.map((experience: { id: number, attributes: { name: string } }) => (
+                                        { value: experience.id, label: experience.attributes.name }
+                                    ))}
+                                    selectedValue={user.previous_experience}
+                                    onValueChange={(value: any) => setUser({ ...user, previous_experience: value })}
                                     primaryColor={theme.colors.primary}
                                 />
-                            </Col>  
+                            </Col>
+                            }
+                            {preferred_hours.length !== 0 &&
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <Dropdown
                                     placeholder="Preferred Hours"
                                     isMultiple={true}
                                     placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
-                                    options={[
-                                        { label: 'Part Time', value: 'part time' },
-                                        { label: 'Full Time', value: 'full time' },
-                                        { label: 'Weekends', value: 'weekends' },
-                                        { label: 'Night Shift', value: 'night shift,' },
-                                        { label: 'Flexible', value: 'flexible' },
-                                    ]}
-                                    selectedValue={previous_experience}
-                                    onValueChange={(value: any) => setPreviousExperience(value)}
+                                    options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
+                                        { value: hours.id, label: hours.attributes.name }
+                                    ))}
+                                    selectedValue={user.preferred_hours}
+                                    onValueChange={(value: any) => setUser({ ...user, preferred_hours: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col> 
+                            }
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <>
                                     <TextInput
@@ -246,7 +292,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={dob}
+                                        value={user.start_date ? moment(user.start_date).format('DD-MM-YYYY') : undefined}
                                         onFocus={() => setDateStartOpen(true)}
                                         onBlur={() => setDateStartOpen(false)}
                                         onTouchStart={() => setDateStartOpen(true)}
@@ -260,7 +306,7 @@ const CreateProfile: FC = () => {
                                         visible={dateStartOpen}
                                         mode="single"
                                         onDismiss={handleDateStartCancel}
-                                        date={start_date}
+                                        date={user.start_date ? new Date(user.start_date) : undefined}
                                         onConfirm={handleDateStartSave}
                                         saveLabel="Save"
                                         label="Select Available From"
@@ -276,7 +322,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={end_date}
+                                        value={user.end_date ? moment(user.end_date).format('DD-MM-YYYY') : undefined}
                                         onFocus={() => setDateEndOpen(true)}
                                         onBlur={() => setDateEndOpen(false)}
                                         onTouchStart={() => setDateEndOpen(true)}
@@ -290,7 +336,7 @@ const CreateProfile: FC = () => {
                                         visible={dateEndOpen}
                                         mode="single"
                                         onDismiss={handleDateEndCancel}
-                                        date={end_date}
+                                        date={user.end_date ? new Date(user.end_date) : undefined}
                                         onConfirm={handleDateEndSave}
                                         saveLabel="Save"
                                         label="Select Available Until"
@@ -299,7 +345,7 @@ const CreateProfile: FC = () => {
                                 </>
                             </Col>
                             <Col style={{ marginBottom: 35 }} xs="12">
-                                <Button uppercase={true} mode="contained" loading={false} onPress={() => console.log('pressed')}>
+                                <Button uppercase={true} mode="contained" loading={false} onPress={() => handleCreateProfile()}>
                                     Save Profile Detials
                                 </Button>
                             </Col>  

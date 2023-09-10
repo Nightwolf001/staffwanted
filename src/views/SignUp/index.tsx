@@ -17,9 +17,8 @@ const SignUp: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
-    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-
     const coord = useContext(AppLocationContext);
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
