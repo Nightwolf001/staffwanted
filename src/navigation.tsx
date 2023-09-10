@@ -9,6 +9,7 @@ import Login from './views/Login';
 import SignUp from './views/SignUp';
 import Welcome from './views/Welcome';
 import Landing from './views/Landing';
+import CreateProfile from './views/CreateProfile';
 
 // Authenticated Screens
 import Home from "./views/Home";
@@ -163,6 +164,11 @@ const AppContainer = () => {
                 <Stack.Screen
                     name="SignUp"
                     component={SignUp}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="CreateProfile"
+                    component={CreateProfile}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

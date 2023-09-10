@@ -1,4 +1,6 @@
 import React, { FC, useEffect } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../redux/store';
 import { Text, View, Image } from "react-native";
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
@@ -9,13 +11,20 @@ import { styles } from "../../theme/styles";
 const Landing: FC = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+    const user = useSelector((state: RootState) => state.userSlice.user);
 
     useEffect(() => {
         console.log('Landing: ');
 
         setTimeout(() => {
-            // navigation.navigate('TabNavigation', { screen: 'Home' });
-            navigation.navigate('Welcome');
+            if (user.account_complete === true) {
+                navigation.navigate('Login');
+            } else if (user.account_complete === false) {
+                navigation.navigate('CreateProfile');
+            } else {
+                navigation.navigate('Welcome');
+            }
+            
         }, 5000);
     }, []);
 

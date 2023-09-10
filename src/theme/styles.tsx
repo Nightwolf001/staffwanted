@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { white, black } from './colors';
+import { white, black, light_blue } from './colors';
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -90,6 +90,12 @@ const styles = StyleSheet.create({
     xs_image : {
         flex: 1,
         width: '60%',
+        resizeMode: "contain",
+        alignSelf: 'center'
+    },
+    xxs_image: {
+        flex: 1,
+        width: '40%',
         resizeMode: "contain",
         alignSelf: 'center'
     },
@@ -220,6 +226,11 @@ const styles = StyleSheet.create({
     // Text Global
     text_white_heading: {
         color: white,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    text_light_blue_heading: {
+        color: light_blue,
         fontWeight: 'bold',
         marginBottom: 15,
     },

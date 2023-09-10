@@ -20,6 +20,7 @@ const Login: FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [passwordVisible, setPasswordVisible] = useState<boolean>(true);
+    const [submitting, setSubmitting] = useState<boolean>(false);
     const [hasError, setHasError] = React.useState(false);
 
     const onToggleSnackBar = () => setHasError(!hasError);
@@ -27,10 +28,12 @@ const Login: FC = () => {
     const handelPasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
     const handleLogin = async () => {
+        setSubmitting(true);
         console.log('handleLogin: ');
         let data = await loginAccount(coord, email, password);
-        console.log('data', data);
+        setSubmitting(false);
 
+        console.log('data', data);
         if (data !== 9001) {
 
         } else {
@@ -79,7 +82,7 @@ const Login: FC = () => {
                             />
                         </Col>
                         <Col style={{ marginBottom: 15 }} xs="12">
-                            <Button uppercase={true} buttonColor={theme.colors.tertiary} textColor={theme.colors.onTertiary} style={{ marginBottom: 15 }} mode="contained" onPress={() => handleLogin()}>
+                            <Button uppercase={true} buttonColor={theme.colors.tertiary} textColor={theme.colors.onTertiary} style={{ marginBottom: 15 }} mode="contained" loading={submitting} onPress={() => handleLogin()}>
                                 Login
                             </Button>
                         </Col>

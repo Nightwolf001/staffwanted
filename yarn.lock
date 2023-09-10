@@ -6065,6 +6065,11 @@ react-native-google-places-autocomplete@^2.5.1:
     prop-types "^15.7.2"
     qs "~6.9.1"
 
+react-native-input-select@^1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/react-native-input-select/-/react-native-input-select-1.1.7.tgz#21825a7c43ec4f39e69cdd703b199804abedea5c"
+  integrity sha512-h5HBn0cgykMfZGGMJFS4g/O2A0+VzGYHtma3cY8Xb1QE2EB3dcjCwKXKrMqxcwLJ6aohfQp9mWr8EM0Irkq2Vg==
+
 react-native-maps@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-1.7.1.tgz#e0b9d68542b4b59b5ca3df375ada7c860fb41f2e"

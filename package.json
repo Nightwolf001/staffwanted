@@ -25,6 +25,7 @@
     "react-native-camera": "^4.2.1",
     "react-native-flex-grid": "^1.0.0",
     "react-native-google-places-autocomplete": "^2.5.1",
+    "react-native-input-select": "^1.1.7",
     "react-native-maps": "^1.7.1",
     "react-native-paper": "^5.10.4",
     "react-native-paper-dates": "^0.18.26",
