@@ -13,11 +13,12 @@ import { Container, Row, Col } from 'react-native-flex-grid';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { User, JobRolesList, GenderList, PreferredHoursList, PreviousExperiencesList } from '../../types';
+import { User } from '../../types';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 import { createProfile, fetchGenders } from "../../actions/account.actions";
 
 import { styles } from "../../theme/styles";
+import { setUser } from "../../redux/reducers/user.reducer";
 
 const CreateProfile: FC = () => {
 
@@ -34,27 +35,25 @@ const CreateProfile: FC = () => {
     const [dateStartOpen, setDateStartOpen] = useState(false);
     const [dateEndOpen, setDateEndOpen] = useState(false);
 
-    const [user, setUser] = useState<User>(user_state);
+    const [user, setUserData] = useState<User>(user_state);
     const [submitting, setSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
 
             let genders = await fetchGenders();
-            console.log('genders', genders)
             setAllGenders(genders?.data);
 
             let jobs = await fetchJobRoles();
-            console.log('jobs', jobs)
             setAllJobRoles(jobs?.data);
 
             let previousExperiences = await fetchPreviousExperiences();
-            console.log('previousExperiences', previousExperiences)
             setPreviousExperiences(previousExperiences?.data);
 
             let preferredHours = await fetchPreferredHours();
-            console.log('preferredHours', preferredHours)
             setPreferredHours(preferredHours?.data);
+
+            console.log('user_state: ', user_state);
 
         })()
     }, []);
@@ -67,7 +66,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setUser({ ...user, date_of_birth: formattedDate });
+        setUserData({ ...user, date_of_birth: formattedDate });
         setDateDobOpen(false);
     };
     const handleDateDobCancel = () => {
@@ -82,7 +81,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setUser({ ...user, start_date: formattedDate });
+        setUserData({ ...user, start_date: formattedDate });
         setDateStartOpen(false);
     };
     const handleDateStartCancel = () => {
@@ -97,7 +96,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
-        setUser({ ...user, end_date: formattedDate });
+        setUserData({ ...user, end_date: formattedDate });
         setDateEndOpen(false);
     };
     const handleDateEndCancel = () => {
@@ -107,17 +106,16 @@ const CreateProfile: FC = () => {
     const handleCreateProfile = async () => {
         setSubmitting(true);
         console.log('handleCreateProfile: ', user);
-        // let response = await createProfile(user);
+        dispatch(setUser(user));
+        let response = await createProfile(user);
         setSubmitting(false);
-        // console.log('data', response.data);
+        console.log('data', response.data);
 
-        // if (response !== 9001) {
-        //     console.log('data.attributes', response.data.attributes);
-        //     dispatch(setUser(response.data.attributes));
-        //     navigation.navigate('TabNavigation', { screen: 'Home' });
-        // } else {
-        //     onToggleSnackBar();
-        // }
+        if (response !== 9001) {
+            navigation.navigate('CreateProfileVideo');
+        } else {
+            // onToggleSnackBar();
+        }
     }
 
     return (
@@ -138,7 +136,7 @@ const CreateProfile: FC = () => {
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.first_name}
-                                    onChangeText={(text) => setUser({ ...user, first_name: text })}
+                                    onChangeText={(text) => setUserData({ ...user, first_name: text })}
                                 />
                             </Col>
                             <Col style={{ marginBottom: 9}} xs="12">
@@ -149,7 +147,7 @@ const CreateProfile: FC = () => {
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.last_name}
-                                    onChangeText={(text) => setUser({ ...user, last_name: text })}
+                                    onChangeText={(text) => setUserData({ ...user, last_name: text })}
                                 />
                             </Col>
                             <Col style={{ marginBottom: 9 }} xs="12">
@@ -161,7 +159,7 @@ const CreateProfile: FC = () => {
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.phone_number}
-                                    onChangeText={(text) => setUser({ ...user, phone_number: text })}
+                                    onChangeText={(text) => setUserData({ ...user, phone_number: text })}
                                 />
                             </Col>
                             <Col style={{ marginBottom: 15 }} xs="12">
@@ -199,14 +197,13 @@ const CreateProfile: FC = () => {
                                     <Dropdown
                                         key={'all_genders'}
                                         placeholder="Select Gender"
-                                        // isMultiple={true}
                                         placeholderStyle={{ color: theme.colors.primary }}
                                         dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                         options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
                                             { value: gender.id, label: gender.attributes.name }
                                         ))}
                                         selectedValue={user.gender}
-                                        onValueChange={(value: any) => setUser({ ...user, gender: value })}
+                                        onValueChange={(value: any) => setUserData({ ...user, gender: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
@@ -219,7 +216,7 @@ const CreateProfile: FC = () => {
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.location}
-                                    onChangeText={(text) => setUser({ ...user, location: text })}
+                                    onChangeText={(text) => setUserData({ ...user, location: text })}
                                 />
                             </Col>
                             {all_job_roles.length !== 0 &&
@@ -234,7 +231,7 @@ const CreateProfile: FC = () => {
                                         { value: job.id, label: job.attributes.role }
                                     ))}
                                     selectedValue={user.job_roles}
-                                    onValueChange={(value: any) => setUser({ ...user, job_roles: value })}
+                                    onValueChange={(value: any) => setUserData({ ...user, job_roles: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col>
@@ -249,21 +246,20 @@ const CreateProfile: FC = () => {
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.work_description}
-                                    onChangeText={(text) => setUser({ ...user, work_description: text })}
+                                    onChangeText={(text) => setUserData({ ...user, work_description: text })}
                                 />
                             </Col>
                             {previous_experiences.length !== 0 &&
                             <Col style={{ marginBottom: 15}} xs="12">
                                 <Dropdown
                                     placeholder="Previous Experience"
-                                    // isMultiple={true}
                                     placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                     options={previous_experiences.length !== 0 && previous_experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                         { value: experience.id, label: experience.attributes.name }
                                     ))}
                                     selectedValue={user.previous_experience}
-                                    onValueChange={(value: any) => setUser({ ...user, previous_experience: value })}
+                                    onValueChange={(value: any) => setUserData({ ...user, previous_experience: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col>
@@ -279,7 +275,7 @@ const CreateProfile: FC = () => {
                                         { value: hours.id, label: hours.attributes.name }
                                     ))}
                                     selectedValue={user.preferred_hours}
-                                    onValueChange={(value: any) => setUser({ ...user, preferred_hours: value })}
+                                    onValueChange={(value: any) => setUserData({ ...user, preferred_hours: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col> 
@@ -345,7 +341,7 @@ const CreateProfile: FC = () => {
                                 </>
                             </Col>
                             <Col style={{ marginBottom: 35 }} xs="12">
-                                <Button uppercase={true} mode="contained" loading={false} onPress={() => handleCreateProfile()}>
+                                <Button uppercase={true} mode="contained" loading={submitting} onPress={() => handleCreateProfile()}>
                                     Save Profile Detials
                                 </Button>
                             </Col>  

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import moment from 'moment';
 
-import { Coord } from '../types';
+import { Coord, User } from '../types';
 import {API_BASE} from "@env";
 
 export const createAccount = async (coord: Coord, email: string, password: string) => {
@@ -29,16 +29,16 @@ export const createAccount = async (coord: Coord, email: string, password: strin
     }
 }
 
-export const createProfile = async (coord: Coord, email: string, password: string) => {
-    console.log('createProfile', coord, email);
+export const createProfile = async (user: User) => {
+    console.log('createProfile', user);
     try {
 
-        const { data } = await axios.post(
-            `${API_BASE}/employees/signup`,
+        const { data } = await axios.put(
+            `${API_BASE}/employees/${user.id}`,
             {
-                email: email,
-                password: password,
-                coord: coord
+              data: {
+                user
+              } 
             },
             {
                 headers: { 'Content-Type': 'application/json' }

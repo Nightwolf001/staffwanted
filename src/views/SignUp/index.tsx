@@ -39,7 +39,9 @@ const SignUp: FC = () => {
 
         if (response !== 9001) {
             console.log('data.attributes', response.data.attributes);
-            dispatch(setUser(response.data.attributes));
+            let user = response.data.attributes;
+            user.id = response.data.id;
+            dispatch(setUser(user));
             navigation.navigate('CreateProfile');
         } else {
             onToggleSnackBar();
