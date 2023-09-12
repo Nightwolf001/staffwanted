@@ -35,6 +35,10 @@ const CreateProfile: FC = () => {
     const [dateStartOpen, setDateStartOpen] = useState(false);
     const [dateEndOpen, setDateEndOpen] = useState(false);
 
+    const [dob, setDob] = useState<any>(null);
+    const [start_date, setStartDate] = useState<any>(null);
+    const [end_date, setEndDate] = useState<any>(null);
+
     const [user, setUserData] = useState<User>(user_state);
     const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -66,6 +70,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
+        setDob(formattedDate);
         setUserData({ ...user, date_of_birth: formattedDate });
         setDateDobOpen(false);
     };
@@ -81,6 +86,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
+        setStartDate(formattedDate);
         setUserData({ ...user, start_date: formattedDate });
         setDateStartOpen(false);
     };
@@ -96,6 +102,7 @@ const CreateProfile: FC = () => {
         }
         const formattedDate = momentDate.format('DD-MM-YYYY');
 
+        setEndDate(formattedDate);
         setUserData({ ...user, end_date: formattedDate });
         setDateEndOpen(false);
     };
@@ -170,7 +177,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={user.date_of_birth ? moment(user.date_of_birth).format('DD-MM-YYYY') : undefined}
+                                        value={dob}
                                         onFocus={() => setDateDobOpen(true)}
                                         onBlur={() => setDateDobOpen(false)}
                                         onTouchStart={() => setDateDobOpen(true)}
@@ -184,7 +191,7 @@ const CreateProfile: FC = () => {
                                         visible={dateDobOpen}
                                         mode="single"
                                         onDismiss={handleDateDobCancel}
-                                        date={user.date_of_birth ? new Date(user.date_of_birth) : undefined}
+                                        date={dob}
                                         onConfirm={handleDateDobSave}
                                         saveLabel="Save"
                                         label="Select Date of Birth"
@@ -288,7 +295,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={user.start_date ? moment(user.start_date).format('DD-MM-YYYY') : undefined}
+                                        value={start_date}
                                         onFocus={() => setDateStartOpen(true)}
                                         onBlur={() => setDateStartOpen(false)}
                                         onTouchStart={() => setDateStartOpen(true)}
@@ -302,7 +309,7 @@ const CreateProfile: FC = () => {
                                         visible={dateStartOpen}
                                         mode="single"
                                         onDismiss={handleDateStartCancel}
-                                        date={user.start_date ? new Date(user.start_date) : undefined}
+                                        date={start_date}
                                         onConfirm={handleDateStartSave}
                                         saveLabel="Save"
                                         label="Select Available From"
@@ -318,7 +325,7 @@ const CreateProfile: FC = () => {
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
-                                        value={user.end_date ? moment(user.end_date).format('DD-MM-YYYY') : undefined}
+                                        value={end_date}
                                         onFocus={() => setDateEndOpen(true)}
                                         onBlur={() => setDateEndOpen(false)}
                                         onTouchStart={() => setDateEndOpen(true)}
@@ -332,7 +339,7 @@ const CreateProfile: FC = () => {
                                         visible={dateEndOpen}
                                         mode="single"
                                         onDismiss={handleDateEndCancel}
-                                        date={user.end_date ? new Date(user.end_date) : undefined}
+                                        date={end_date}
                                         onConfirm={handleDateEndSave}
                                         saveLabel="Save"
                                         label="Select Available Until"

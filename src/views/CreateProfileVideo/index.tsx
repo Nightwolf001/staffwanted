@@ -29,13 +29,26 @@ const CreateProfileVideo: FC = () => {
     const user_state = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
-
-    const [seconds, setSeconds] = useState<number>(15);
+    const [seconds, setSeconds] = useState<number>(0);
     const [user, setUserData] = useState<User>(user_state);
     const [recording, setRecording] = useState<boolean>(false);
     const [recording_ended, setRecordingEnded] = useState<boolean>(false);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (recording && seconds !== 0) {
+            let timer = seconds > 0 && setInterval(() => {
+                if(seconds === 0) {
+                    setRecording(false);
+                    setModalVisible(false);
+                    stopRecordingVideo();
+                }
+                setSeconds(seconds - 1)
+            }, 1000); 
+            return () => clearInterval(timer || undefined);   
+        }
+    }, [seconds]);
 
     const handleCreateProfile = async () => {
     }
@@ -44,7 +57,7 @@ const CreateProfileVideo: FC = () => {
         if (cameraRef && cameraRef.current) {
             let camera = cameraRef.current;
             setRecording(true);
-        
+            setSeconds(15);
             const options = { 
                 quality: RNCamera.Constants.VideoQuality["288p"], 
                 maxDuration: seconds 
@@ -60,7 +73,7 @@ const CreateProfileVideo: FC = () => {
         if (!recording) { return }
         if (cameraRef && cameraRef.current) {
             let camera = cameraRef.current;
-            setSeconds(15);
+            setSeconds(0);
             setRecording(false);
             await camera.stopRecording();
         }
@@ -89,11 +102,11 @@ const CreateProfileVideo: FC = () => {
                 animationType="slide"
                 transparent={false}
                 visible={modalVisible}
-                onRequestClose={() => { setModalVisible(false)}}
+                onRequestClose={() => {(setModalVisible(false), stopRecordingVideo())}}
                 presentationStyle={"pageSheet"}
             >
                 <>
-                    <TouchableOpacity style={styles.modal_btn_left} onPress={() => setModalVisible(false)} >
+                    <TouchableOpacity style={styles.modal_btn_left} onPress={() => (setModalVisible(false), stopRecordingVideo())} >
                         <Text style={styles.modal_txt}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.modal_btn_right} onPress={() => console.log()} >
