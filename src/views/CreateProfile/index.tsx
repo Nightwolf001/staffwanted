@@ -204,6 +204,7 @@ const CreateProfile: FC = () => {
                                     <Dropdown
                                         key={'all_genders'}
                                         placeholder="Select Gender"
+                                        dropdownContainerStyle={{ marginBottom: 0 }}
                                         placeholderStyle={{ color: theme.colors.primary }}
                                         dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                         options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
@@ -233,6 +234,7 @@ const CreateProfile: FC = () => {
                                     placeholder="Interested in these job roles..."
                                     isMultiple={true}
                                     placeholderStyle={{ color: theme.colors.primary }}
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                     options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
                                         { value: job.id, label: job.attributes.role }
@@ -261,6 +263,7 @@ const CreateProfile: FC = () => {
                                 <Dropdown
                                     placeholder="Previous Experience"
                                     placeholderStyle={{ color: theme.colors.primary }}
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                     options={previous_experiences.length !== 0 && previous_experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                         { value: experience.id, label: experience.attributes.name }
@@ -277,6 +280,7 @@ const CreateProfile: FC = () => {
                                     placeholder="Preferred Hours"
                                     isMultiple={true}
                                     placeholderStyle={{ color: theme.colors.primary }}
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
                                     options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
                                         { value: hours.id, label: hours.attributes.name }

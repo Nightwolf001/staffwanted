@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
 import moment from 'moment';
+import Video from 'react-native-video';
 import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
 import { DatePickerModal } from 'react-native-paper-dates';
@@ -20,11 +21,13 @@ import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "..
 
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
+import { white } from "../../theme/colors";
 
 const CreateProfileVideo: FC = () => {
 
     const theme = useTheme();
-    let cameraRef = useRef<any>();
+    let cameraRef = useRef<any>()
+    let videoRef = useRef<any>()
     const dispatch = useDispatch();
     const user_state = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -32,21 +35,21 @@ const CreateProfileVideo: FC = () => {
     const [seconds, setSeconds] = useState<number>(0);
     const [user, setUserData] = useState<User>(user_state);
     const [recording, setRecording] = useState<boolean>(false);
-    const [recording_ended, setRecordingEnded] = useState<boolean>(false);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [recording_ended, setRecordingEnded] = useState<boolean>(false);
+    const [recorded_file_path, setRecordedFilePath] = useState<string>('');
 
     useEffect(() => {
         if (recording && seconds !== 0) {
-            let timer = seconds > 0 && setInterval(() => {
-                if(seconds === 0) {
-                    setRecording(false);
-                    setModalVisible(false);
-                    stopRecordingVideo();
-                }
-                setSeconds(seconds - 1)
+            let timer = seconds >= 0 && setInterval(() => {
+                console.log('secconds', seconds)
+                setSeconds(seconds - 1);
             }, 1000); 
             return () => clearInterval(timer || undefined);   
+        } else if(recording && seconds === 0) {
+            setRecording(false);
+            stopRecordingVideo();
         }
     }, [seconds]);
 
@@ -57,15 +60,18 @@ const CreateProfileVideo: FC = () => {
         if (cameraRef && cameraRef.current) {
             let camera = cameraRef.current;
             setRecording(true);
-            setSeconds(15);
+            setSeconds(5);
             const options = { 
                 quality: RNCamera.Constants.VideoQuality["288p"], 
-                maxDuration: seconds 
+                maxDuration: seconds,
+                mirrorVideo : false,
+                mute : false
             };
 
             const { uri } = await camera.recordAsync(options);
+            setRecordedFilePath(uri);
             console.log('uri', uri);
-            Alert.alert('Video', uri);
+            // Alert.alert('Video', uri);
         }   
     }
 
@@ -76,6 +82,7 @@ const CreateProfileVideo: FC = () => {
             setSeconds(0);
             setRecording(false);
             await camera.stopRecording();
+            setRecordingEnded(true);
         }
     }
 
@@ -88,12 +95,14 @@ const CreateProfileVideo: FC = () => {
             <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
                 <Text style={[styles.text_light_blue_heading, {paddingTop: 10, paddingBottom: 0 }]} variant="headlineSmall">Record a short video intro</Text>
                 <Text style={[styles.text_light_blue_heading]} variant="labelLarge">(max 15sec)</Text>
-                <View style={[styles.container_curved, { backgroundColor: theme.colors.primary, width: '100%', paddingTop: 0 }]}>
-                    <ImageBackground source={require(`../../assets/images/recording_intro.jpg`)} style={[styles.background_image, { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }]}>
-                        <Button style={{ position: 'absolute', bottom: 20 }} icon="camera" mode="contained" onPress={() => setModalVisible(true)}>
-                            Start Recording
-                        </Button>
-                    </ImageBackground>
+                <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary, width: '100%', paddingTop: 0 }]}>
+                    
+                        <ImageBackground source={require(`../../assets/images/recording_intro.jpg`)} style={[styles.background_image, { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }]}>
+                            <Button style={{ position: 'absolute', bottom: 20 }} icon="camera" mode="contained" onPress={() => setModalVisible(true)}>
+                                Start Recording
+                            </Button>
+                        </ImageBackground>
+                                      
                 </View>
             </View>
 
@@ -113,6 +122,7 @@ const CreateProfileVideo: FC = () => {
                         <Text style={styles.modal_txt}>Save</Text>
                     </TouchableOpacity>
 
+                    {!recording_ended &&
                     <RNCamera
                         ref={cameraRef}
                         style={[styles.container_curved, { flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: theme.colors.primary, width: '100%' }]}
@@ -142,10 +152,10 @@ const CreateProfileVideo: FC = () => {
                                 onPress={() => startRecordingVideo()}
                             />
                         }
-
+                    
                         {recording &&
                             <>
-                            <Text style={{ position: 'absolute', top: 20 }} variant="headlineSmall">{seconds} sec left</Text>
+                            <Text style={{ position: 'absolute', top: 35, fontWeight: 'bold', color: white }} variant="labelLarge">{seconds} sec left</Text>        
                             <IconButton
                                 style={{ position: 'absolute', bottom: 20 }}
                                 icon="stop-circle"
@@ -156,6 +166,18 @@ const CreateProfileVideo: FC = () => {
                             </>
                         }
                     </RNCamera>
+                    }
+
+                    {recording_ended &&
+                        <Video
+                            ref={videoRef}
+                            controls={true}
+                            repeat={true}
+                            resizeMode={"cover"}
+                            source={{ uri: recorded_file_path }}
+                            style={styles.backgroundVideo} 
+                        />
+                    }
 
                 </>
             </Modal>
