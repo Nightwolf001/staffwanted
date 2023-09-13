@@ -18,7 +18,7 @@ const Landing: FC = () => {
 
         setTimeout(() => {
             if (user.account_complete === true) {
-                navigation.navigate('Login');
+                navigation.navigate('CreateProfile');
             } else if (user.account_complete === false) {
                 navigation.navigate('CreateProfile');
             } else {

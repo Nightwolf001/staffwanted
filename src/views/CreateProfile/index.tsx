@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import moment from 'moment';
 
-import { View, Image, ScrollView } from "react-native";
-import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
+import { View, Image, ScrollView, Modal } from "react-native";
+import { useTheme, TextInput, Button, Text, IconButton } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
 import Dropdown from 'react-native-input-select';
 import { Container, Row, Col } from 'react-native-flex-grid';
@@ -56,6 +56,10 @@ const CreateProfile: FC = () => {
 
             let preferredHours = await fetchPreferredHours();
             setPreferredHours(preferredHours?.data);
+
+            setDob(user_state.date_of_birth);
+            setStartDate(user_state.start_date);
+            setEndDate(user_state.end_date);
 
             console.log('user_state: ', user_state);
 
@@ -112,7 +116,7 @@ const CreateProfile: FC = () => {
 
     const handleCreateProfile = async () => {
         setSubmitting(true);
-        console.log('handleCreateProfile: ', user);
+        
         dispatch(setUser(user));
         let response = await createProfile(user);
         setSubmitting(false);
@@ -135,6 +139,18 @@ const CreateProfile: FC = () => {
                     <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Complete your profile.</Text>
                     <Container fluid>
                         <Row>
+                            <Col style={{  }} xs="4">
+                                <IconButton
+                                    style={{ backgroundColor: theme.colors.primary, padding: 15}}
+                                    icon="account-plus"
+                                    iconColor={theme.colors.onPrimary}
+                                    size={70}
+                                    onPress={() => console.log('Pressed')}
+                                />
+                            </Col>
+                            <Col style={{  justifyContent: 'center', alignItems: 'flex-start', }} xs="8">
+                                <Text style={[styles.text_light_blue_heading, {marginBottom: 0}]} variant="labelLarge">Add your profile image.</Text>
+                            </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
                                 <TextInput
                                     mode='outlined'
@@ -191,7 +207,7 @@ const CreateProfile: FC = () => {
                                         visible={dateDobOpen}
                                         mode="single"
                                         onDismiss={handleDateDobCancel}
-                                        date={dob}
+                                        date={new Date()}
                                         onConfirm={handleDateDobSave}
                                         saveLabel="Save"
                                         label="Select Date of Birth"
@@ -313,7 +329,7 @@ const CreateProfile: FC = () => {
                                         visible={dateStartOpen}
                                         mode="single"
                                         onDismiss={handleDateStartCancel}
-                                        date={start_date}
+                                        date={new Date()}
                                         onConfirm={handleDateStartSave}
                                         saveLabel="Save"
                                         label="Select Available From"
@@ -343,7 +359,7 @@ const CreateProfile: FC = () => {
                                         visible={dateEndOpen}
                                         mode="single"
                                         onDismiss={handleDateEndCancel}
-                                        date={end_date}
+                                        date={new Date()}
                                         onConfirm={handleDateEndSave}
                                         saveLabel="Save"
                                         label="Select Available Until"

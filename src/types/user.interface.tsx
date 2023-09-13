@@ -9,15 +9,17 @@ export interface User {
     location?: string;
     previous_experience?: number[];
     preferred_hours?: number[];
-    start_date?: string | Date;
-    end_date?: string | Date;
+    start_date?: string;
+    end_date?: string;
     hide_profile?: boolean;
     work_description?: string;
-    date_of_birth?: string | Date;
+    date_of_birth?: string;
     account_complete: boolean;
     coord: Coord;
     gender?: number[];
     job_roles?: number[];
+    video_id?: number;
+    avatar_id?: number;
 };
 
 // previous-experiences
