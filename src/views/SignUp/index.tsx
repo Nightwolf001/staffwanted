@@ -1,6 +1,6 @@
 import React, { FC, useState, useContext } from "react";
 import { useDispatch } from 'react-redux';
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { Container, Row, Col } from 'react-native-flex-grid';
 
@@ -93,7 +93,11 @@ const SignUp: FC = () => {
                             </Button>
                         </Col>
                     </Row>
-                </Container>                
+                </Container>  
+                <TouchableOpacity style={{ position: 'absolute', bottom: 20 }} onPress={() => navigation.navigate('Login')}>
+                    <Text style={[styles.text_white_heading, { marginBottom: 0, textAlign: 'center'}]} variant="labelSmall">Already have a account?</Text>
+                    <Text style={[styles.text_white_heading, { margin: 0, textAlign: 'center' }]} variant="labelSmall">Login</Text>
+                </TouchableOpacity>              
             </View>
             <Snackbar
                 style={{backgroundColor: theme.colors.onPrimary}}

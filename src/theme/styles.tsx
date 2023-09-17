@@ -11,11 +11,12 @@ const styles = StyleSheet.create({
     },
     container_curved: {
         flex: 3, 
-        paddingTop: 20,
+        paddingTop: 15,
         width: '100%', 
         borderTopEndRadius: 35, 
         borderTopStartRadius: 35,
         alignItems: "center",
+        position: 'relative',
     },
     container: {
         flex: 1.4,

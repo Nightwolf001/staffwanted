@@ -1,8 +1,9 @@
 import axios from 'axios';
 import moment from 'moment';
 
+import { API_BASE } from "@env";
 import { Coord, User } from '../types';
-import {API_BASE} from "@env";
+import axiosInstance from '../services/interceptor.service';
 
 export const createAccount = async (coord: Coord, email: string, password: string) => {
     console.log('createAccount', coord, email);
@@ -42,7 +43,7 @@ export const createProfile = async (user: User) => {
                 email: user.email,
                 phone_number: user.phone_number,
                 location : user.location,
-                previous_experience: user.previous_experience,
+                experience: user.experience,
                 preferred_hours: user.preferred_hours,
                 start_date: user.start_date ? user.start_date : null,
                 end_date: user.end_date ? user.end_date : null,
@@ -66,6 +67,53 @@ export const createProfile = async (user: User) => {
 
     } catch (ex) {
         console.log('createProfile ex', ex);
+    }
+}
+
+export const updateProfile = async (profile_id : number, post_data: any) => {
+    console.log('updateProfile', post_data);
+    try {
+
+        const { data } = await axios.put(
+            `${API_BASE}/employees/${profile_id}`, {
+                data: post_data
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        }
+        );
+
+        console.log('updateProfile response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('updateProfile ex', ex);
+    }
+}
+
+export const fetchProfile = async (profile_id: Number) => {
+    console.log('fetchProfile');
+    try {
+
+        const { data } = await axiosInstance.get(`${API_BASE}/employees/${profile_id}`);
+
+        console.log('fetchProfile response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('fetchProfile ex', ex);
+    }
+}
+
+export const fetchUser = async () => {
+    console.log('fetchUser');
+    try {
+
+        const { data } = await axiosInstance.get(`${API_BASE}/users/me`);
+        console.log('fetchUser response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('fetchUser ex', ex);
     }
 }
 
@@ -95,11 +143,10 @@ export const loginAccount = async (coord: Coord, email: string, password: string
     try {
 
         const { data } = await axios.post(
-            `${API_BASE}/employees/signup`,
+            `${API_BASE}/auth/local`,
             {
-                email: email,
+                identifier: email,
                 password: password,
-                coord: coord
             },
             {
                 headers: { 'Content-Type': 'application/json' }

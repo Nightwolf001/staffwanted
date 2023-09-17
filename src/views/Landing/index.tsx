@@ -15,15 +15,20 @@ const Landing: FC = () => {
 
     useEffect(() => {
         console.log('Landing: ');
-
+        console.log('user redux', user);
         setTimeout(() => {
-            if (user.account_complete === true) {
-                navigation.navigate('CreateProfile');
-            } else if (user.account_complete === false) {
-                navigation.navigate('CreateProfile');
+            if(user.user_logged_in === true) {
+                if (user.account_complete === true) {
+                    navigation.navigate('TabNavigation', { screen: 'Home' });
+                } else if (user.account_complete === false) {
+                    navigation.navigate('CreateProfile');
+                }
+            } else if (user.user_logged_in === false) {
+                navigation.navigate('Login');
             } else {
                 navigation.navigate('Welcome');
             }
+
             
         }, 5000);
     }, []);

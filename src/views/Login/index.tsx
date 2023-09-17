@@ -1,44 +1,64 @@
-import React, { FC, useEffect, useState, useContext } from "react";
+import React, { FC, useState, useContext } from "react";
+import { useDispatch } from 'react-redux';
 import { View, Image } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { Container, Row, Col } from 'react-native-flex-grid';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { loginAccount } from "../../actions/account.actions";
+import { setUser } from '../../redux/reducers/user.reducer';
+import { loginAccount, fetchProfile, updateProfile } from "../../actions/account.actions";
 import { AppLocationContext } from '../../context/appLocationContext';
 
 import { styles } from "../../theme/styles";
+var _ = require('lodash');
 
 const Login: FC = () => {
 
     const theme = useTheme();
+    const dispatch = useDispatch();
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const coord = useContext(AppLocationContext);
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(true);
+    const [password_visible, setPasswordVisible] = useState<boolean>(true);
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [hasError, setHasError] = React.useState(false);
 
     const onToggleSnackBar = () => setHasError(!hasError);
     const onDismissSnackBar = () => setHasError(false);
-    const handelPasswordVisibility = () => setPasswordVisible(!passwordVisible);
+    const handelPasswordVisibility = () => setPasswordVisible(!password_visible);
 
     const handleLogin = async () => {
         setSubmitting(true);
-        console.log('handleLogin: ');
-        let data = await loginAccount(coord, email, password);
+        let {user, jwt} = await loginAccount(coord, email, password);
         setSubmitting(false);
 
-        console.log('data', data);
-        if (data !== 9001) {
+            if(user.blocked) {
+                onToggleSnackBar();
+                return;
+            } else {
+                await AsyncStorage.setItem('token', jwt);
+                await updateProfile(user.profile_id, {user_logged_in: true})
+                let { data } = await fetchProfile(user.profile_id);
+                
+                let { attributes } = data;
+                user = attributes
+                user.gender = attributes.gender.data.id;
+                user.experience = attributes.experience.data.id;
+                user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
+                user.job_roles = _.map(attributes.job_roles.data, 'id');
 
-        } else {
-            onToggleSnackBar();
-        }
+                console.log('fetchLoggedInUser profile', user);
+
+                dispatch(setUser(user));
+                navigation.navigate('TabNavigation', { screen: 'Home' });
+            }
+
+       
 
         // navigation.navigate('TabNavigation', { screen: 'Home' });
     }
@@ -73,7 +93,7 @@ const Login: FC = () => {
                                 placeholder="Password"
                                 value={password}
                                 onChangeText={(text) => setPassword(text)}
-                                secureTextEntry={passwordVisible}
+                                secureTextEntry={password_visible}
                                 outlineColor={theme.colors.onPrimary}
                                 activeOutlineColor={theme.colors.onPrimary}
                                 outlineStyle={{ backgroundColor: theme.colors.onPrimary, borderRadius: 15 }}

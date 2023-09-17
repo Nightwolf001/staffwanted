@@ -14,6 +14,7 @@ import { store, persistor } from './src/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { InternetConnectionProvider } from './src/context/internetConnectionContext';
 import { AppLocationProvider } from './src/context/appLocationContext';
+import { AuthProvider } from './src/context/authContext';
 
 import AppContainer from "./src/navigation";
 
@@ -82,7 +83,7 @@ const theme = {
     onSurfaceDisabled: "rgba(29, 27, 30, 0.38)",
     backdrop: "rgba(51, 47, 55, 0.4)"
   }
-  };
+};
 
 const App: React.FC = () => {
   return (
@@ -92,7 +93,9 @@ const App: React.FC = () => {
         <PaperProvider theme={theme}>
           <InternetConnectionProvider>
             <AppLocationProvider>
-              <AppContainer />
+              <AuthProvider>
+                <AppContainer />
+              </AuthProvider>
             </AppLocationProvider>
           </InternetConnectionProvider>
         </PaperProvider>

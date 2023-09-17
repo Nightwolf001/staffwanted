@@ -3,28 +3,22 @@ import React, { FC, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
-import moment from 'moment';
 import Video from 'react-native-video';
 import { RNCamera } from 'react-native-camera';
-import Dropdown from 'react-native-input-select';
-import { DatePickerModal } from 'react-native-paper-dates';
-import { Container, Row, Col } from 'react-native-flex-grid';
-import { useTheme, IconButton, Button, Text, Snackbar } from 'react-native-paper';
+import { useTheme, IconButton, Button, Text } from 'react-native-paper';
 import { View, Image, Alert, Modal, TouchableOpacity, ImageBackground, ActivityIndicator } from "react-native";
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
-import { createProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
-import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
+import { createProfile, uploadFile } from "../../actions/account.actions";
 
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
-import { white } from "../../theme/colors";
+
 
 const CreateProfileVideo: FC = () => {
-
     
     let videoRef = useRef<any>();
     let cameraRef = useRef<any>();
@@ -118,7 +112,7 @@ const CreateProfileVideo: FC = () => {
             email: user.email,
             phone_number: user.phone_number,
             location: user.location,
-            previous_experience: user.previous_experience,
+            experience: user.experience,
             preferred_hours: user.preferred_hours,
             start_date: user.start_date,
             end_date: user.end_date,
@@ -182,7 +176,6 @@ const CreateProfileVideo: FC = () => {
                         </TouchableOpacity>
                     }
 
-
                     {recording_ended && !recording &&
                     <>
                         <TouchableOpacity style={styles.modal_btn_left} onPress={() => cancelRecordingVideo()} >
@@ -193,8 +186,6 @@ const CreateProfileVideo: FC = () => {
                         </TouchableOpacity>
                     </>
                     }
-
-                    
 
                     {!recording_ended &&
                     <RNCamera

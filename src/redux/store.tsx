@@ -6,13 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import userSlice from './reducers/user.reducer'
 
 const rootReducer = combineReducers({
-    userSlice,
+    userSlice
 })
 
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
-    whitelist: ['userSlice'],
+    whitelist: ['userSlice', 'authSlice'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -7,7 +7,7 @@ export interface User {
     email: string;
     phone_number?: string;
     location?: string;
-    previous_experience?: number[];
+    experience?: number[];
     preferred_hours?: number[];
     start_date?: string;
     end_date?: string;
@@ -18,8 +18,10 @@ export interface User {
     coord: Coord;
     gender?: number[];
     job_roles?: number[];
-    video_id?: number;
-    avatar_id?: number;
+    video_id?: any;
+    avatar_id?: any;
+    profile_boosted ?: boolean;
+    user_logged_in ?: boolean;
 };
 
 // previous-experiences

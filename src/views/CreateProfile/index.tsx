@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import moment from 'moment';
 
-import { View, Image, ScrollView, Modal } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton } from 'react-native-paper';
+import { RNCamera } from 'react-native-camera';
+import { View, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
+import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
 import Dropdown from 'react-native-input-select';
 import { Container, Row, Col } from 'react-native-flex-grid';
@@ -15,12 +16,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
-import { createProfile, fetchGenders } from "../../actions/account.actions";
+import { createProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
 
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
 
 const CreateProfile: FC = () => {
+
+    let cameraRef = useRef<any>();
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -30,10 +33,12 @@ const CreateProfile: FC = () => {
     const [all_job_roles, setAllJobRoles] = useState<any>([]);
     const [all_genders, setAllGenders] = useState<any>([]);
     const [preferred_hours, setPreferredHours] = useState<any>([]);
-    const [previous_experiences, setPreviousExperiences] = useState<any>([]);
-    const [dateDobOpen, setDateDobOpen] = useState(false);
-    const [dateStartOpen, setDateStartOpen] = useState(false);
-    const [dateEndOpen, setDateEndOpen] = useState(false);
+    const [experiences, setExperiences] = useState<any>([]);
+    const [date_dob_open, setDateDobOpen] = useState(false);
+    const [date_start_open, setDateStartOpen] = useState(false);
+    const [date_end_open, setDateEndOpen] = useState(false);
+    const [modal_visible, setModalVisible] = useState<boolean>(false);
+    const [profile_image, setProfileImage] = useState<string>('');
 
     const [dob, setDob] = useState<any>(null);
     const [start_date, setStartDate] = useState<any>(null);
@@ -51,8 +56,8 @@ const CreateProfile: FC = () => {
             let jobs = await fetchJobRoles();
             setAllJobRoles(jobs?.data);
 
-            let previousExperiences = await fetchPreviousExperiences();
-            setPreviousExperiences(previousExperiences?.data);
+            let experiences = await fetchPreviousExperiences();
+            setExperiences(experiences?.data);
 
             let preferredHours = await fetchPreferredHours();
             setPreferredHours(preferredHours?.data);
@@ -60,8 +65,6 @@ const CreateProfile: FC = () => {
             setDob(user_state.date_of_birth);
             setStartDate(user_state.start_date);
             setEndDate(user_state.end_date);
-
-            console.log('user_state: ', user_state);
 
         })()
     }, []);
@@ -129,6 +132,24 @@ const CreateProfile: FC = () => {
         }
     }
 
+    const takePicture = async () => {
+        if (cameraRef) {
+            const options = { quality: 0.1, base64: true };
+            const {uri} = await cameraRef.current.takePictureAsync(options);
+
+            let file_name = `${user.id}_avatar`
+            let file_type = 'image/jpg'
+            let image_uri = uri
+
+            let resp = await uploadFile(file_name, file_type, image_uri);
+            let avatar_id = resp[0].id;
+            setProfileImage(uri);
+            setUserData({ ...user, avatar_id: avatar_id });
+            setModalVisible(false);
+
+        }
+    };
+
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
             <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary }}>
@@ -139,17 +160,21 @@ const CreateProfile: FC = () => {
                     <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Complete your profile.</Text>
                     <Container fluid>
                         <Row>
-                            <Col style={{  }} xs="4">
+                            <Col xs="3">
                                 <IconButton
-                                    style={{ backgroundColor: theme.colors.primary, padding: 15}}
-                                    icon="account-plus"
+                                    style={{ backgroundColor: theme.colors.primary, width: 70, height: 70}}
+                                    icon={profile_image.length === 0 ? "account-plus" : "account-check"}
                                     iconColor={theme.colors.onPrimary}
-                                    size={70}
-                                    onPress={() => console.log('Pressed')}
+                                    size={40}
+                                    onPress={() => setModalVisible(true)}
                                 />
                             </Col>
                             <Col style={{  justifyContent: 'center', alignItems: 'flex-start', }} xs="8">
-                                <Text style={[styles.text_light_blue_heading, {marginBottom: 0}]} variant="labelLarge">Add your profile image.</Text>
+                                {profile_image.length === 0 ?
+                                    <Text style={[styles.text_light_blue_heading, {marginBottom: 0}]} variant="labelLarge">Add your profile image.</Text>
+                                :
+                                    <Text style={[styles.text_light_blue_heading, { marginBottom: 0 }]} variant="labelLarge">Change your profile image.</Text>
+                                }
                             </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
                                 <TextInput
@@ -204,7 +229,7 @@ const CreateProfile: FC = () => {
                                     <DatePickerModal
                                         presentationStyle="pageSheet"
                                         locale="en-US"
-                                        visible={dateDobOpen}
+                                        visible={date_dob_open}
                                         mode="single"
                                         onDismiss={handleDateDobCancel}
                                         date={new Date()}
@@ -274,18 +299,18 @@ const CreateProfile: FC = () => {
                                     onChangeText={(text) => setUserData({ ...user, work_description: text })}
                                 />
                             </Col>
-                            {previous_experiences.length !== 0 &&
+                            {experiences.length !== 0 &&
                             <Col style={{ marginBottom: 15}} xs="12">
                                 <Dropdown
                                     placeholder="Previous Experience"
                                     placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownContainerStyle={{ marginBottom: 0 }}
                                     dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
-                                    options={previous_experiences.length !== 0 && previous_experiences?.map((experience: { id: number, attributes: { name: string } }) => (
+                                    options={experiences.length !== 0 && experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                         { value: experience.id, label: experience.attributes.name }
                                     ))}
-                                    selectedValue={user.previous_experience}
-                                    onValueChange={(value: any) => setUserData({ ...user, previous_experience: value })}
+                                    selectedValue={user.experience}
+                                    onValueChange={(value: any) => setUserData({ ...user, experience: value })}
                                     primaryColor={theme.colors.primary}
                                 />
                             </Col>
@@ -326,7 +351,7 @@ const CreateProfile: FC = () => {
                                     <DatePickerModal
                                         presentationStyle="pageSheet"
                                         locale="en-US"
-                                        visible={dateStartOpen}
+                                        visible={date_start_open}
                                         mode="single"
                                         onDismiss={handleDateStartCancel}
                                         date={new Date()}
@@ -356,7 +381,7 @@ const CreateProfile: FC = () => {
                                     <DatePickerModal
                                         presentationStyle="pageSheet"
                                         locale="en-US"
-                                        visible={dateEndOpen}
+                                        visible={date_end_open}
                                         mode="single"
                                         onDismiss={handleDateEndCancel}
                                         date={new Date()}
@@ -376,6 +401,42 @@ const CreateProfile: FC = () => {
                     </Container>
                 </ScrollView>
             </View>
+
+            <Modal
+                style={styles.wrapper}
+                animationType="slide"
+                transparent={false}
+                visible={modal_visible}
+                onRequestClose={() => console.log('Modal closed')}
+                presentationStyle={"pageSheet"}
+            >
+
+                <TouchableOpacity style={styles.modal_btn_left} onPress={() => setModalVisible(false)} >
+                    <Text style={[styles.modal_txt, { color: theme.colors.primary }]}>Close</Text>
+                </TouchableOpacity>
+
+                <RNCamera
+                    ref={cameraRef}
+                    style={[ { flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: theme.colors.primary, width: '100%' }]}
+                    type={RNCamera.Constants.Type.front}
+                    captureAudio={true}
+                    androidCameraPermissionOptions={{
+                        title: 'Permission to use camera',
+                        message: 'We need your permission to use your camera',
+                        buttonPositive: 'Ok',
+                        buttonNegative: 'Cancel',
+                    }}
+                >                      
+                    <IconButton
+                        style={{ position: 'absolute', bottom: 20, backgroundColor: theme.colors.onPrimary }}
+                        icon="camera"
+                        iconColor={theme.colors.primary}
+                        size={50}
+                        onPress={() => takePicture()}
+                    />
+                </RNCamera>
+            </Modal>
+
         </View>
     );
 };

@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Alert, AppState, AppStateStatus } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
@@ -15,7 +14,6 @@ const AppLocationContext = createContext<Coord>({
 // Create the app state provider component
 const AppLocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
-    const dispatch = useDispatch();
     const [coord, setCoord] = useState<Coord>({ lat: '', lng: '' });
     const [previousAppState, setPreviousAppState] = useState<string>('');
     const [currentAppState, setCurrentAppState] = useState<string>(AppState.currentState);

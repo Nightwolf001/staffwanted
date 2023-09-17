@@ -13,7 +13,7 @@ export const fetchJobRoles = async () => {
 
 export const fetchPreviousExperiences = async () => {
     try {
-        const { data } = await axios.get(`${API_BASE}/previous-experiences`);
+        const { data } = await axios.get(`${API_BASE}/experiences`);
         // console.log('fetchPreviousExperiences data', data);
         return data;
     } catch (ex) {
