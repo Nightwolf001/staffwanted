@@ -16,6 +16,8 @@ import { Container, Row, Col } from 'react-native-flex-grid';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { GreetingsText } from "../../components";
+
 
 import { User } from '../../types';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
@@ -124,7 +126,7 @@ const Profile: FC = () => {
                 <Container fluid>
                     <Row>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-start' }} xs="8">
-                            <Text style={[{ marginBottom: 0, color: theme.colors.onPrimary }]} variant="headlineSmall">Good Afternoon</Text>
+                            <GreetingsText />
                             <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.onPrimary }]} variant="headlineMedium">{user.first_name}</Text>
                         </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-end'}} xs="4">
