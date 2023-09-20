@@ -1887,6 +1887,11 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
+"@telenko/react-native-paper-autocomplete@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@telenko/react-native-paper-autocomplete/-/react-native-paper-autocomplete-1.0.3.tgz#815418bf2eb8c0e486c3b62ded5b89a9d5ac1049"
+  integrity sha512-ZsDm1yTZulGtwIPJjAB48t7CJhSV40gkl7zmXH341dAzg50+Tzrw4rBNOjArd1nVEvSU90riucj6QlDwhO8uVw==
+
 "@testing-library/react-native@^12.2.2":
   version "12.3.0"
   resolved "https://registry.yarnpkg.com/@testing-library/react-native/-/react-native-12.3.0.tgz#ebf04dddb7e1c34c869b97b187ecd061211c9466"

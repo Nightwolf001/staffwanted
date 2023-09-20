@@ -235,6 +235,7 @@ const Profile: FC = () => {
                                     label={'Location'}
                                     mode='outlined'
                                     placeholder="Location"
+                                    multiline={true}
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
