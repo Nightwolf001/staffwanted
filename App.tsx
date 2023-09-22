@@ -18,6 +18,13 @@ import { AuthProvider } from './src/context/authContext';
 
 import AppContainer from "./src/navigation";
 
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({ 
+  dsn: 'https://e1c90630f316e6d8606c140ba9eae793@o4505917829414912.ingest.sentry.io/4505917840031744', 
+});
+
+
 registerTranslation('en-US', {
   save: 'Save',
   selectSingle: 'Select date',

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity, Platform } from "react-native";
+import { Image, StyleSheet, View, Text, Platform } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,8 +17,6 @@ import Home from "./views/Home";
 import Inbox from "./views/Inbox";
 import Jobs from "./views/Jobs";
 import Profile from "./views/Profile";
-
-
 
 const HomeStack = createNativeStackNavigator();
 const HomeStackScreens = () => (
@@ -90,7 +88,8 @@ const AppTabsScreens = () => (
                 headerShown: false,
                 tabBarIcon: ({ focused }) => (
                     <View style={{ alignItems: 'center', justifyContent: 'center', top: Platform.OS === 'ios' ? 15 : 0 }}>
-                        <Text>Home</Text>
+                        <Image source={require('./assets/icons/home.png')} resizeMode='contain' style={{ width: 25, height: 25, tintColor: focused ? '#004A8F' : '#96C4E2' }}></Image>
+                        <Text style={{ color: focused ? '#004A8F' : '#96C4E2', fontSize: 12, fontWeight: "400" }}>Home</Text>
                     </View>
                 ),
             }}
@@ -104,7 +103,8 @@ const AppTabsScreens = () => (
                 headerShown: false,
                 tabBarIcon: ({ focused }) => (
                     <View style={{ alignItems: 'center', justifyContent: 'center', top: Platform.OS === 'ios' ? 15 : 0 }}>
-                        <Text>Inbox</Text>
+                        <Image source={require('./assets/icons/inbox.png')} resizeMode='contain' style={{ width: 25, height: 25, tintColor: focused ? '#004A8F' : '#96C4E2' }}></Image>
+                        <Text style={{ color: focused ? '#004A8F' : '#96C4E2', fontSize: 12, fontWeight: "400" }}>Inbox</Text>
                     </View>
                 ),
             }}
@@ -118,7 +118,8 @@ const AppTabsScreens = () => (
                 headerShown: false,
                 tabBarIcon: ({ focused }) => (
                     <View style={{ alignItems: 'center', justifyContent: 'center', top: Platform.OS === 'ios' ? 15 : 0 }}>
-                        <Text>Jobs</Text>
+                        <Image source={require('./assets/icons/job.png')} resizeMode='contain' style={{ width: 25, height: 25, tintColor: focused ? '#004A8F' : '#96C4E2' }}></Image>
+                        <Text style={{ color: focused ? '#004A8F' : '#96C4E2', fontSize: 12, fontWeight: "400" }}>Shortlisted</Text>
                     </View>
                 ),
             }}
@@ -132,7 +133,8 @@ const AppTabsScreens = () => (
                 headerShown: false,
                 tabBarIcon: ({ focused }) => (
                     <View style={{ alignItems: 'center', justifyContent: 'center', top: Platform.OS === 'ios' ? 15 : 0 }}>
-                        <Text>Profile</Text>
+                        <Image source={require('./assets/icons/profile.png')} resizeMode='contain' style={{ width: 25, height: 25, tintColor: focused ? '#004A8F' : '#96C4E2' }}></Image>
+                        <Text style={{ color: focused ? '#004A8F' : '#96C4E2', fontSize: 12, fontWeight: "400"}}>Profile</Text>
                     </View>
                 ),
             }}

@@ -3,15 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import moment from 'moment';
 
+import { MAPS_API_KEY } from '@env';
 
 import { View, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
+import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
 
 import Video from 'react-native-video';
 import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -47,6 +49,10 @@ const Profile: FC = () => {
     const [start_date, setStartDate] = useState<any>(null);
     const [end_date, setEndDate] = useState<any>(null);
 
+    const [modal_visible, setModalVisible] = useState<boolean>(false);
+    const [is_profile_visible, setIsProfileVisible] = useState<boolean>(false);
+    const [is_profile_boosted, setIsProfileBoosted] = useState<boolean>(false);
+
     const [user_data, setUserData] = useState<User>(user);
 
     useEffect(() => {
@@ -67,6 +73,7 @@ const Profile: FC = () => {
             setDob(user_data.date_of_birth);
             setStartDate(user_data.start_date);
             setEndDate(user_data.end_date);
+            setIsProfileVisible(user_data.hide_profile);
 
         })()
     }, []);
@@ -120,11 +127,28 @@ const Profile: FC = () => {
         setDateEndOpen(false);
     };
 
+    const handelSearchLocation = (data: any, details: any) => {
+        console.log('data: ', data);
+        console.log('details: ', details);
+
+        setModalVisible(true);
+    }
+
+    const onToggleSwitch = () => setIsProfileVisible(!is_profile_visible);
+
     return (
-        <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
+        <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
             <View style={{ flex: .8, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
                 <Container fluid>
                     <Row>
+                        <Col style={{ justifyContent: 'center', alignItems: 'flex-end', paddingBottom: 5 }} xs="12">
+                            <IconButton
+                                icon="menu"
+                                iconColor={theme.colors.onPrimary}
+                                size={25}
+                                onPress={() => console.log('Pressed')}
+                            />
+                        </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-start' }} xs="8">
                             <GreetingsText />
                             <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.onPrimary }]} variant="headlineMedium">{user.first_name}</Text>
@@ -144,13 +168,23 @@ const Profile: FC = () => {
                 <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
                     <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Manage profile.</Text>
                     <Container fluid>
-                        <Row>
+                        <Row style={{ justifyContent: 'center' }}>
+                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
+                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from Employers?</Text>
+                            </Col>
+                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
+                                <Switch value={is_profile_visible} onValueChange={onToggleSwitch} />
+                            </Col>
+                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
+                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engement?</Text>
+                            </Col>
+                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
+                                <Switch value={is_profile_boosted} onValueChange={onToggleSwitch} />
+                            </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
                                 <TextInput
                                     label={'First Name'}
                                     mode='outlined'
-                                    placeholder="First Name"
-                                    placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user_data.first_name}
@@ -161,8 +195,6 @@ const Profile: FC = () => {
                                 <TextInput
                                     mode='outlined'
                                     label={'Last Name'}
-                                    placeholder="Last Name"
-                                    placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user_data.last_name}
@@ -173,9 +205,7 @@ const Profile: FC = () => {
                                 <TextInput
                                     mode='outlined'
                                     label={'Phone Number'}
-                                    placeholder="Phone Number"
                                     keyboardType="phone-pad"
-                                    placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user_data.phone_number}
@@ -187,8 +217,6 @@ const Profile: FC = () => {
                                     <TextInput
                                         mode='outlined'
                                         label={'Date of Birth'}
-                                        placeholder="Date of Birth"
-                                        placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
                                         value={dob}
@@ -224,24 +252,81 @@ const Profile: FC = () => {
                                         options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
                                             { value: gender.id, label: gender.attributes.name }
                                         ))}
-                                        selectedValue={user.gender}
-                                        onValueChange={(value: any) => setUserData({ ...user, gender: value })}
+                                        selectedValue={user_data.gender}
+                                        onValueChange={(value: any) => setUserData({ ...user_data, gender: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
                             }
                             <Col style={{ marginBottom: 15 }} xs="12">
-                                <TextInput
-                                    label={'Location'}
-                                    mode='outlined'
-                                    placeholder="Location"
-                                    multiline={true}
-                                    placeholderTextColor={theme.colors.primary}
-                                    outlineColor={theme.colors.primary}
-                                    outlineStyle={{ borderRadius: 15 }}
-                                    value={user.location}
-                                    onChangeText={(text) => setUserData({ ...user, location: text })}
-                                />
+                                <>
+                                    <TextInput
+                                        label={'Location'}
+                                        mode='outlined'
+                                        multiline={false}
+                                        outlineColor={theme.colors.primary}
+                                        outlineStyle={{ borderRadius: 15 }}
+                                        value={user_data.location}
+                                        onFocus={() => setModalVisible(true)}
+                                        onBlur={() => setModalVisible(false)}
+                                        onTouchStart={() => setModalVisible(true)}
+                                        onTouchEnd={() => setModalVisible(false)}
+                                        editable={false}
+                                        right={<TextInput.Icon icon="map-marker-circle" onPress={() => setModalVisible(true)} />}
+                                    />
+                                    <Modal 
+                                        style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%', flex: 1 }]}
+                                        animationType="slide"
+                                        transparent={false}
+                                        visible={modal_visible}
+                                        onRequestClose={() => { setModalVisible(false) }}
+                                        presentationStyle={"pageSheet"}
+                                    >
+
+                                        <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
+                                            <IconButton
+                                                icon="close"
+                                                iconColor={theme.colors.onPrimary}
+                                                size={25}
+                                                onPress={() => setModalVisible(false)}
+                                            />
+                                            <Text style={[styles.text_light_blue_heading, {marginBottom: 0, textAlign: 'center' }]} variant="headlineSmall">Search location.</Text>
+                                        </View>
+
+                                        <View style={[{ padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
+                                            <ScrollView>
+                                                <GooglePlacesAutocomplete
+                                                    styles={{
+                                                        textInput: {
+                                                            borderRadius: 15,
+                                                            borderWidth: 1,
+                                                            borderColor: theme.colors.primary,
+                                                            color: '#5d5d5d',
+                                                            fontSize: 16,
+                                                        },
+                                                        predefinedPlacesDescription: {
+                                                            color: '#1faadb',
+                                                        },
+                                                    }}    
+                                                    placeholder='Search for your location...'
+                                                    fetchDetails={true}
+                                                    onPress={(data, details = null) => {
+
+                                                        console.log('data', data);
+                                                        console.log('details', details);
+                                                        setModalVisible(false);
+
+                                                    }}
+                                                    query={{
+                                                        key: MAPS_API_KEY,
+                                                        language: 'en',
+                                                        types: 'geocode'
+                                                    }}
+                                                />
+                                            </ScrollView>
+                                        </View>
+                                    </Modal>
+                                </>
                             </Col>
                             {all_job_roles.length !== 0 &&
                                 <Col style={{ marginBottom: 9 }} xs="12">
@@ -255,8 +340,8 @@ const Profile: FC = () => {
                                         options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
                                             { value: job.id, label: job.attributes.role }
                                         ))}
-                                        selectedValue={user.job_roles}
-                                        onValueChange={(value: any) => setUserData({ ...user, job_roles: value })}
+                                        selectedValue={user_data.job_roles}
+                                        onValueChange={(value: any) => setUserData({ ...user_data, job_roles: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
@@ -271,8 +356,8 @@ const Profile: FC = () => {
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
-                                    value={user.work_description}
-                                    onChangeText={(text) => setUserData({ ...user, work_description: text })}
+                                    value={user_data.work_description}
+                                    onChangeText={(text) => setUserData({ ...user_data, work_description: text })}
                                 />
                             </Col>
                             {experiences.length !== 0 &&
@@ -285,8 +370,8 @@ const Profile: FC = () => {
                                         options={experiences.length !== 0 && experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                             { value: experience.id, label: experience.attributes.name }
                                         ))}
-                                        selectedValue={user.experience}
-                                        onValueChange={(value: any) => setUserData({ ...user, experience: value })}
+                                        selectedValue={user_data.experience}
+                                        onValueChange={(value: any) => setUserData({ ...user_data, experience: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
@@ -302,8 +387,8 @@ const Profile: FC = () => {
                                         options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
                                             { value: hours.id, label: hours.attributes.name }
                                         ))}
-                                        selectedValue={user.preferred_hours}
-                                        onValueChange={(value: any) => setUserData({ ...user, preferred_hours: value })}
+                                        selectedValue={user_data.preferred_hours}
+                                        onValueChange={(value: any) => setUserData({ ...user_data, preferred_hours: value })}
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
@@ -313,8 +398,6 @@ const Profile: FC = () => {
                                     <TextInput
                                         mode='outlined'
                                         label={'Available From'}
-                                        placeholder="Available From"
-                                        placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
                                         value={start_date}
@@ -344,8 +427,6 @@ const Profile: FC = () => {
                                     <TextInput
                                         mode='outlined'
                                         label={'Available Until'}
-                                        placeholder="Available Until"
-                                        placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
                                         value={end_date}

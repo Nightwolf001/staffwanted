@@ -179,8 +179,7 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
                                 <TextInput
                                     mode='outlined'
-                                    placeholder="First Name"
-                                    placeholderTextColor={theme.colors.primary}
+                                    label="First Name"
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
                                     value={user.first_name}
@@ -190,7 +189,7 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 9}} xs="12">
                                 <TextInput
                                     mode='outlined'
-                                    placeholder="Last Name"
+                                    label="Last Name"
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
@@ -201,7 +200,7 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <TextInput
                                     mode='outlined'
-                                    placeholder="Phone Number"
+                                    label="Phone Number"
                                     keyboardType="phone-pad"
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
@@ -214,7 +213,7 @@ const CreateProfile: FC = () => {
                                 <>
                                     <TextInput
                                         mode='outlined'
-                                        placeholder="Date of Birth"
+                                        label="Date of Birth"
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
@@ -260,7 +259,7 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 15 }} xs="12">
                                 <TextInput
                                     mode='outlined'
-                                    placeholder="Location"
+                                    label="Location"
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
@@ -289,6 +288,7 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 15 }} xs="12">
                                 <TextInput
                                     mode='outlined'
+                                    label="Experience/Qualifications"
                                     placeholder="Experience/qualifications and/or what you are doing now"
                                     multiline={true}
                                     maxLength={50}
@@ -336,7 +336,7 @@ const CreateProfile: FC = () => {
                                 <>
                                     <TextInput
                                         mode='outlined'
-                                        placeholder="Available From"
+                                        label="Available From"
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}
@@ -366,7 +366,7 @@ const CreateProfile: FC = () => {
                                 <>
                                     <TextInput
                                         mode='outlined'
-                                        placeholder="Available Until"
+                                        label="Available Until"
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
                                         outlineStyle={{ borderRadius: 15 }}

@@ -11,7 +11,6 @@ export interface User {
     preferred_hours?: number[];
     start_date?: string;
     end_date?: string;
-    hide_profile?: boolean;
     work_description?: string;
     date_of_birth?: string;
     account_complete: boolean;
@@ -20,6 +19,7 @@ export interface User {
     job_roles?: number[];
     video_id?: any;
     avatar_id?: any;
+    hide_profile: boolean;
     profile_boosted ?: boolean;
     user_logged_in ?: boolean;
 };
