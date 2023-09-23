@@ -103,8 +103,9 @@ const CreateProfileVideo: FC = () => {
         
         let resp = await uploadFile(video_name, video_type, video_uri);
         let video_id = resp[0].id;
-        console.log('video_id', video_id);
 
+        setUserData({ ...user, video_id: video_id, account_complete: true, profile_boosted: false });
+        
         let user_object = {
             id : user.id,
             first_name: user.first_name,
@@ -123,6 +124,7 @@ const CreateProfileVideo: FC = () => {
             video_id: video_id,
             avatar_id: user.avatar_id,
             coord: user.coord,
+            profile_boosted: user.profile_boosted,
         };
        
         let response = await createProfile(user_object);
@@ -130,7 +132,7 @@ const CreateProfileVideo: FC = () => {
         console.log('data', response.data);
 
         if (response !== 9001) {
-            //  setUserData({ ...user, video_id: video_id, account_complete: true });
+            
             dispatch(setUser(user_object));
             setRecordingEnded(false);
             setModalVisible(false);
@@ -138,6 +140,10 @@ const CreateProfileVideo: FC = () => {
         } else {
                 // onToggleSnackBar();
         }
+    }
+
+    const saveProfile = async () => {
+
     }
  
     return (

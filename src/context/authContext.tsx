@@ -59,24 +59,26 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         try {
             let user = await fetchUser();
             console.log('fetchLoggedInUser user', user);
-
+            let profile_id = user.profile_id;
             if (user.blocked) {
                 setIsAuthenticated(false);
                 return;
             } else {
-                let {data} = await fetchProfile(user.profile_id);
+                let { data } = await fetchProfile(profile_id);
                 console.log('fetchLoggedInUser profile', data);
                 let { attributes } = data;
                 user = attributes
+                user.id = profile_id;
                 user.gender = attributes.gender.data.id;
                 user.experience = attributes.experience.data.id;
                 user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
                 user.job_roles = _.map(attributes.job_roles.data, 'id');
 
+                console.log('fetchLoggedInUser user', user);
+
                 dispatch(setUser(user));
                 setIsAuthenticated(true);
-                
-                // dispatch(updateUser({
+
             }
             // let profile = await fetchProfile(user.profile_id);
         } catch (error) {

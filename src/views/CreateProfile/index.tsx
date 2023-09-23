@@ -10,7 +10,6 @@ import { DatePickerModal } from 'react-native-paper-dates';
 import Dropdown from 'react-native-input-select';
 import { Container, Row, Col } from 'react-native-flex-grid';
 
-
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 

@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { MAPS_API_KEY } from '@env';
 
-import { View, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
+import { View, ScrollView, Modal, Alert } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
 
 import Video from 'react-native-video';
@@ -20,10 +20,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { GreetingsText } from "../../components";
 
-
 import { User } from '../../types';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
-import { createProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
+import { updateProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
 
 import { styles } from "../../theme/styles";
 
@@ -49,6 +48,7 @@ const Profile: FC = () => {
     const [start_date, setStartDate] = useState<any>(null);
     const [end_date, setEndDate] = useState<any>(null);
 
+    const [submitting, setSubmitting] = useState<boolean>(false);
     const [modal_visible, setModalVisible] = useState<boolean>(false);
     const [is_profile_visible, setIsProfileVisible] = useState<boolean>(false);
     const [is_profile_boosted, setIsProfileBoosted] = useState<boolean>(false);
@@ -74,10 +74,10 @@ const Profile: FC = () => {
             setStartDate(user_data.start_date);
             setEndDate(user_data.end_date);
             setIsProfileVisible(user_data.hide_profile);
+            setIsProfileBoosted(user_data.profile_boosted);
 
         })()
     }, []);
-
 
     const handleDateDobSave = (dob: any) => {
         const momentDate = moment(dob.date);
@@ -127,14 +127,23 @@ const Profile: FC = () => {
         setDateEndOpen(false);
     };
 
-    const handelSearchLocation = (data: any, details: any) => {
-        console.log('data: ', data);
-        console.log('details: ', details);
+    const onToggleProfileVisibility = () => setIsProfileVisible(!is_profile_visible);
+    const onToggleProfileBoost = () => setIsProfileBoosted(!is_profile_boosted);
 
-        setModalVisible(true);
+    const handelUpdateProfile = async () => {
+        setSubmitting(true);
+        const response = await updateProfile(user.id, user_data);
+        if (response) {
+            setSubmitting(false);
+            Alert.alert(
+                "Success",
+                "Profile updated successfully.",
+                [
+                    { text: "OK", onPress: () => navigation.navigate('Profile') }
+                ]
+            );
+        }
     }
-
-    const onToggleSwitch = () => setIsProfileVisible(!is_profile_visible);
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
@@ -170,18 +179,18 @@ const Profile: FC = () => {
                     <Container fluid>
                         <Row style={{ justifyContent: 'center' }}>
                             <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from Employers?</Text>
+                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from employers?</Text>
                             </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                <Switch value={is_profile_visible} onValueChange={onToggleSwitch} />
+                                <Switch value={is_profile_visible} onValueChange={onToggleProfileVisibility} />
                             </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engement?</Text>
+                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engament?</Text>
                             </Col>
                             <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                <Switch value={is_profile_boosted} onValueChange={onToggleSwitch} />
+                                <Switch value={is_profile_boosted} onValueChange={onToggleProfileBoost} />
                             </Col>
-                            <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
+                            {/* <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
                                 <TextInput
                                     label={'First Name'}
                                     mode='outlined'
@@ -200,7 +209,7 @@ const Profile: FC = () => {
                                     value={user_data.last_name}
                                     onChangeText={(text) => setUserData({ ...user_data, last_name: text })}
                                 />
-                            </Col>
+                            </Col> */}
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <TextInput
                                     mode='outlined'
@@ -212,7 +221,7 @@ const Profile: FC = () => {
                                     onChangeText={(text) => setUserData({ ...user_data, phone_number: text })}
                                 />
                             </Col>
-                            <Col style={{ marginBottom: 15 }} xs="12">
+                            {/* <Col style={{ marginBottom: 9 }} xs="12">
                                 <>
                                     <TextInput
                                         mode='outlined'
@@ -240,8 +249,8 @@ const Profile: FC = () => {
                                         animationType="slide"
                                     />
                                 </>
-                            </Col>
-                            {all_genders.length !== 0 &&
+                            </Col> */}
+                            {/* {all_genders.length !== 0 &&
                                 <Col style={{ marginBottom: 9 }} xs="12">
                                     <Dropdown
                                         key={'all_genders'}
@@ -257,7 +266,7 @@ const Profile: FC = () => {
                                         primaryColor={theme.colors.primary}
                                     />
                                 </Col>
-                            }
+                            } */}
                             <Col style={{ marginBottom: 15 }} xs="12">
                                 <>
                                     <TextInput
@@ -275,55 +284,53 @@ const Profile: FC = () => {
                                         right={<TextInput.Icon icon="map-marker-circle" onPress={() => setModalVisible(true)} />}
                                     />
                                     <Modal 
-                                        style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%', flex: 1 }]}
+                                        style={[styles.wrapper]}
                                         animationType="slide"
                                         transparent={false}
                                         visible={modal_visible}
                                         onRequestClose={() => { setModalVisible(false) }}
                                         presentationStyle={"pageSheet"}
                                     >
-
-                                        <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
-                                            <IconButton
-                                                icon="close"
-                                                iconColor={theme.colors.onPrimary}
-                                                size={25}
-                                                onPress={() => setModalVisible(false)}
-                                            />
-                                            <Text style={[styles.text_light_blue_heading, {marginBottom: 0, textAlign: 'center' }]} variant="headlineSmall">Search location.</Text>
-                                        </View>
-
-                                        <View style={[{ padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
-                                            <ScrollView>
-                                                <GooglePlacesAutocomplete
-                                                    styles={{
-                                                        textInput: {
-                                                            borderRadius: 15,
-                                                            borderWidth: 1,
-                                                            borderColor: theme.colors.primary,
-                                                            color: '#5d5d5d',
-                                                            fontSize: 16,
-                                                        },
-                                                        predefinedPlacesDescription: {
-                                                            color: '#1faadb',
-                                                        },
-                                                    }}    
-                                                    placeholder='Search for your location...'
-                                                    fetchDetails={true}
-                                                    onPress={(data, details = null) => {
-
-                                                        console.log('data', data);
-                                                        console.log('details', details);
-                                                        setModalVisible(false);
-
-                                                    }}
-                                                    query={{
-                                                        key: MAPS_API_KEY,
-                                                        language: 'en',
-                                                        types: 'geocode'
-                                                    }}
+                                        <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary}}>
+                                            <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
+                                                <IconButton
+                                                    icon="close"
+                                                    iconColor={theme.colors.onPrimary}
+                                                    size={25}
+                                                    onPress={() => setModalVisible(false)}
                                                 />
-                                            </ScrollView>
+                                                <Text style={[styles.text_light_blue_heading, { textAlign: 'center' }]} variant="headlineSmall">Search your location.</Text>
+                                            </View>
+
+                                            <View style={[{ borderTopEndRadius: 35, borderTopStartRadius: 35, padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
+                                                <ScrollView>
+                                                    <GooglePlacesAutocomplete
+                                                        styles={{
+                                                            textInput: {
+                                                                borderRadius: 15,
+                                                                borderWidth: 1,
+                                                                borderColor: theme.colors.primary,
+                                                                color: '#5d5d5d',
+                                                                fontSize: 16,
+                                                            },
+                                                            predefinedPlacesDescription: {
+                                                                color: '#1faadb',
+                                                            },
+                                                        }}    
+                                                        placeholder='Search for your location...'
+                                                        fetchDetails={true}
+                                                        onPress={(data, details = null) => {
+                                                            setUserData({ ...user_data, location: data.description, place_id: data.place_id })
+                                                            setModalVisible(false);
+                                                        }}
+                                                        query={{
+                                                            key: MAPS_API_KEY,
+                                                            language: 'en',
+                                                            types: 'geocode'
+                                                        }}
+                                                    />
+                                                </ScrollView>
+                                            </View>
                                         </View>
                                     </Modal>
                                 </>
@@ -352,7 +359,7 @@ const Profile: FC = () => {
                                     mode='outlined'
                                     placeholder="Experience/qualifications and/or what you are doing now"
                                     multiline={true}
-                                    maxLength={50}
+                                    maxLength={150}
                                     placeholderTextColor={theme.colors.primary}
                                     outlineColor={theme.colors.primary}
                                     outlineStyle={{ borderRadius: 15 }}
@@ -451,6 +458,11 @@ const Profile: FC = () => {
                                     />
                                 </>
                             </Col>
+                            <Col style={{ marginBottom: 35 }} xs="12">
+                                <Button uppercase={true} mode="contained" loading={submitting} onPress={() => handelUpdateProfile()}>
+                                    Update Profile Detials
+                                </Button>
+                            </Col>  
                         </Row>
                         <View style={{height: 100}}></View>
                     </Container>                

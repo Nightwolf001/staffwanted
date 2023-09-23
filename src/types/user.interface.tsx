@@ -20,8 +20,9 @@ export interface User {
     video_id?: any;
     avatar_id?: any;
     hide_profile: boolean;
-    profile_boosted ?: boolean;
+    profile_boosted: boolean;
     user_logged_in ?: boolean;
+    place_id ?: string;
 };
 
 // previous-experiences
