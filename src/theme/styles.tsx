@@ -228,7 +228,6 @@ const styles = StyleSheet.create({
     text_white_heading: {
         color: white,
         fontWeight: 'bold',
-        marginBottom: 15,
     },
     text_light_blue_heading: {
         color: light_blue,

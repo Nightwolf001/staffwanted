@@ -23,12 +23,12 @@ const SignUp: FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(true);
+    const [password_visible, setPasswordVisible] = useState<boolean>(true);
     const [hasError, setHasError] = React.useState(false);
 
     const onToggleSnackBar = () => setHasError(!hasError);
     const onDismissSnackBar = () => setHasError(false);
-    const handelPasswordVisibility = () => setPasswordVisible(!passwordVisible);
+    const handelPasswordVisibility = () => setPasswordVisible(!password_visible);
 
     const handleSignUp = async () => {
         setSubmitting(true);
@@ -79,12 +79,13 @@ const SignUp: FC = () => {
                                 placeholder="Password"
                                 value={password}
                                 onChangeText={(text) => setPassword(text)}
-                                secureTextEntry={passwordVisible}
+                                secureTextEntry={password_visible}
+                                cursorColor={theme.colors.primary}
                                 outlineColor={theme.colors.onPrimary}
                                 activeOutlineColor={theme.colors.onPrimary}
                                 outlineStyle={{ backgroundColor: theme.colors.onPrimary, borderRadius: 15 }}
                                 left={<TextInput.Icon icon="lock-outline" />}
-                                right={<TextInput.Icon icon="eye-outline" onPress={() => handelPasswordVisibility()} />}
+                                right={<TextInput.Icon icon={password_visible ? "eye-off-outline" : "eye-outline"} onPress={() => handelPasswordVisibility()} />}
                             />
                         </Col>
                         <Col style={{ marginBottom: 15 }} xs="12">

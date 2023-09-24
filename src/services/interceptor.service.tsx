@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { API_BASE } from '@env';
-import { Auth } from '../types';
+import { User } from '../types';
 import { store } from '../redux/store';
-import { setAuth } from "../redux/reducers/auth.reducer";
+import { setUser } from "../redux/reducers/user.reducer";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosInstance = axios.create({
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
 export const logout = async () => {
     try {
         await AsyncStorage.removeItem('token');
-        store.dispatch(setAuth({} as Auth));
+        // store.dispatch(setUser({} as User));
     } catch (ex) {
         console.log('logout ex', ex);
     }

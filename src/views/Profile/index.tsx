@@ -1,13 +1,12 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
-import moment from 'moment';
 
-import { MAPS_API_KEY } from '@env';
+import { RootState } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { View, ScrollView, Modal, Alert } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
 
+import moment from 'moment';
 import Video from 'react-native-video';
 import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
@@ -18,12 +17,13 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { GreetingsText } from "../../components";
+import { Menu, GreetingsText } from "../../components";
 
 import { User } from '../../types';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 import { updateProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
 
+import { MAPS_API_KEY } from '@env';
 import { styles } from "../../theme/styles";
 
 const Profile: FC = () => {
@@ -33,18 +33,16 @@ const Profile: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
+    const [menu_visible, setMenuVisible] = React.useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const [all_job_roles, setAllJobRoles] = useState<any>([]);
-    const [all_genders, setAllGenders] = useState<any>([]);
     const [preferred_hours, setPreferredHours] = useState<any>([]);
     const [experiences, setExperiences] = useState<any>([]);
-    const [date_dob_open, setDateDobOpen] = useState(false);
     const [date_start_open, setDateStartOpen] = useState(false);
     const [date_end_open, setDateEndOpen] = useState(false);
 
-    const [dob, setDob] = useState<any>(null);
     const [start_date, setStartDate] = useState<any>(null);
     const [end_date, setEndDate] = useState<any>(null);
 
@@ -58,9 +56,6 @@ const Profile: FC = () => {
     useEffect(() => {
         (async () => {
 
-            let genders = await fetchGenders();
-            setAllGenders(genders?.data);
-
             let jobs = await fetchJobRoles();
             setAllJobRoles(jobs?.data);
 
@@ -70,7 +65,6 @@ const Profile: FC = () => {
             let preferredHours = await fetchPreferredHours();
             setPreferredHours(preferredHours?.data);
 
-            setDob(user_data.date_of_birth);
             setStartDate(user_data.start_date);
             setEndDate(user_data.end_date);
             setIsProfileVisible(user_data.hide_profile);
@@ -78,22 +72,6 @@ const Profile: FC = () => {
 
         })()
     }, []);
-
-    const handleDateDobSave = (dob: any) => {
-        const momentDate = moment(dob.date);
-        if (!momentDate.isValid()) {
-            console.log('Invalid date');
-            return;
-        }
-        const formattedDate = momentDate.format('DD-MM-YYYY');
-
-        setDob(formattedDate);
-        setUserData({ ...user_data, date_of_birth: formattedDate });
-        setDateDobOpen(false);
-    };
-    const handleDateDobCancel = () => {
-        setDateDobOpen(false);
-    };
 
     const handleDateStartSave = (start_date: any) => {
         const momentDate = moment(start_date.date);
@@ -147,6 +125,7 @@ const Profile: FC = () => {
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
+            <Menu menu_visible={menu_visible} setMenuVisible={setMenuVisible} />
             <View style={{ flex: .8, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
                 <Container fluid>
                     <Row>
@@ -190,26 +169,6 @@ const Profile: FC = () => {
                             <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
                                 <Switch value={is_profile_boosted} onValueChange={onToggleProfileBoost} />
                             </Col>
-                            {/* <Col style={{ marginBottom: 9, marginTop: 5 }} xs="12">
-                                <TextInput
-                                    label={'First Name'}
-                                    mode='outlined'
-                                    outlineColor={theme.colors.primary}
-                                    outlineStyle={{ borderRadius: 15 }}
-                                    value={user_data.first_name}
-                                    onChangeText={(text) => setUserData({ ...user_data, first_name: text })}
-                                />
-                            </Col>
-                            <Col style={{ marginBottom: 9 }} xs="12">
-                                <TextInput
-                                    mode='outlined'
-                                    label={'Last Name'}
-                                    outlineColor={theme.colors.primary}
-                                    outlineStyle={{ borderRadius: 15 }}
-                                    value={user_data.last_name}
-                                    onChangeText={(text) => setUserData({ ...user_data, last_name: text })}
-                                />
-                            </Col> */}
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <TextInput
                                     mode='outlined'
@@ -221,52 +180,6 @@ const Profile: FC = () => {
                                     onChangeText={(text) => setUserData({ ...user_data, phone_number: text })}
                                 />
                             </Col>
-                            {/* <Col style={{ marginBottom: 9 }} xs="12">
-                                <>
-                                    <TextInput
-                                        mode='outlined'
-                                        label={'Date of Birth'}
-                                        outlineColor={theme.colors.primary}
-                                        outlineStyle={{ borderRadius: 15 }}
-                                        value={dob}
-                                        onFocus={() => setDateDobOpen(true)}
-                                        onBlur={() => setDateDobOpen(false)}
-                                        onTouchStart={() => setDateDobOpen(true)}
-                                        onTouchEnd={() => setDateDobOpen(false)}
-                                        editable={false}
-                                        right={<TextInput.Icon icon="calendar" onPress={() => setDateDobOpen(true)} />}
-                                    />
-                                    <DatePickerModal
-                                        presentationStyle="pageSheet"
-                                        locale="en-US"
-                                        visible={date_dob_open}
-                                        mode="single"
-                                        onDismiss={handleDateDobCancel}
-                                        date={new Date()}
-                                        onConfirm={handleDateDobSave}
-                                        saveLabel="Save"
-                                        label="Select Date of Birth"
-                                        animationType="slide"
-                                    />
-                                </>
-                            </Col> */}
-                            {/* {all_genders.length !== 0 &&
-                                <Col style={{ marginBottom: 9 }} xs="12">
-                                    <Dropdown
-                                        key={'all_genders'}
-                                        placeholder="Select Gender"
-                                        dropdownContainerStyle={{ marginBottom: 0 }}
-                                        placeholderStyle={{ color: theme.colors.primary }}
-                                        dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
-                                        options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
-                                            { value: gender.id, label: gender.attributes.name }
-                                        ))}
-                                        selectedValue={user_data.gender}
-                                        onValueChange={(value: any) => setUserData({ ...user_data, gender: value })}
-                                        primaryColor={theme.colors.primary}
-                                    />
-                                </Col>
-                            } */}
                             <Col style={{ marginBottom: 15 }} xs="12">
                                 <>
                                     <TextInput
@@ -293,13 +206,21 @@ const Profile: FC = () => {
                                     >
                                         <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary}}>
                                             <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
-                                                <IconButton
-                                                    icon="close"
-                                                    iconColor={theme.colors.onPrimary}
-                                                    size={25}
-                                                    onPress={() => setModalVisible(false)}
-                                                />
-                                                <Text style={[styles.text_light_blue_heading, { textAlign: 'center' }]} variant="headlineSmall">Search your location.</Text>
+                                                <Container fluid>
+                                                    <Row>
+                                                        <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="10">
+                                                            <Text style={[styles.text_white_heading]} variant="headlineSmall">Search your location.</Text>
+                                                        </Col>
+                                                        <Col style={{ alignItems: 'flex-end', justifyContent: 'center' }} xs="2">
+                                                            <IconButton
+                                                                icon="close"
+                                                                iconColor={theme.colors.onPrimary}
+                                                                size={30}
+                                                                onPress={() => setModalVisible(false)}
+                                                            />
+                                                        </Col>
+                                                    </Row>
+                                                </Container>          
                                             </View>
 
                                             <View style={[{ borderTopEndRadius: 35, borderTopStartRadius: 35, padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>

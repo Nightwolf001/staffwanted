@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
+
 import { useDispatch } from 'react-redux';
 import { AppState, AppStateStatus } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { setUser } from '../redux/reducers/user.reducer';
@@ -49,8 +51,14 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
     useEffect(() => {
         (async () => {
-            console.log('AuthProvider useEffect');
-            fetchLoggedInUser();
+            console.log('AuthProvider useEffect', token);
+            if(token.length !== 0) {
+                fetchLoggedInUser();
+            } else {
+                //dispatch(setUser({}));
+                setIsAuthenticated(false);
+                return;
+            }
         })();
     }, [token]);
 
@@ -58,14 +66,18 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         setIsLoading(true);
         try {
             let user = await fetchUser();
-            console.log('fetchLoggedInUser user', user);
             let profile_id = user.profile_id;
+
             if (user.blocked) {
+
+                dispatch(setUser({}));
                 setIsAuthenticated(false);
                 return;
+
             } else {
+
                 let { data } = await fetchProfile(profile_id);
-                console.log('fetchLoggedInUser profile', data);
+        
                 let { attributes } = data;
                 user = attributes
                 user.id = profile_id;
@@ -74,13 +86,11 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
                 user.job_roles = _.map(attributes.job_roles.data, 'id');
 
-                console.log('fetchLoggedInUser user', user);
-
                 dispatch(setUser(user));
                 setIsAuthenticated(true);
 
             }
-            // let profile = await fetchProfile(user.profile_id);
+
         } catch (error) {
             console.error(error);
         } finally {

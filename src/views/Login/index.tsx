@@ -1,5 +1,6 @@
 import React, { FC, useState, useContext } from "react";
-import { useDispatch } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { View, Image } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
@@ -22,6 +23,9 @@ const Login: FC = () => {
 
     const coord = useContext(AppLocationContext);
 
+    const user = useSelector((state: RootState) => state.userSlice.user);
+    console.log('useSelector user', user);
+
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [password_visible, setPasswordVisible] = useState<boolean>(true);
@@ -35,6 +39,8 @@ const Login: FC = () => {
     const handleLogin = async () => {
         setSubmitting(true);
         let {user, jwt} = await loginAccount(coord, email, password);
+        console.log('loginAccount', user);
+        console.log('loginAccount jwt', jwt);
         setSubmitting(false);
 
             if(user.blocked) {
@@ -47,6 +53,7 @@ const Login: FC = () => {
                 
                 let { attributes } = data;
                 user = attributes
+                user.id = data.id
                 user.gender = attributes.gender.data.id;
                 user.experience = attributes.experience.data.id;
                 user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
@@ -81,6 +88,7 @@ const Login: FC = () => {
                                 placeholder="Email"
                                 value={email}
                                 onChangeText={(text) => setEmail(text)}
+                                cursorColor={theme.colors.primary}
                                 outlineColor={theme.colors.onPrimary}
                                 activeOutlineColor={theme.colors.onPrimary}
                                 outlineStyle={{ backgroundColor: theme.colors.onPrimary, borderRadius: 15 }}
@@ -94,11 +102,12 @@ const Login: FC = () => {
                                 value={password}
                                 onChangeText={(text) => setPassword(text)}
                                 secureTextEntry={password_visible}
+                                cursorColor={theme.colors.primary}
                                 outlineColor={theme.colors.onPrimary}
                                 activeOutlineColor={theme.colors.onPrimary}
                                 outlineStyle={{ backgroundColor: theme.colors.onPrimary, borderRadius: 15 }}
                                 left={<TextInput.Icon icon="lock-outline" />}
-                                right={<TextInput.Icon icon="eye-outline" onPress={() => handelPasswordVisibility()} />}
+                                right={<TextInput.Icon icon={password_visible ? "eye-off-outline" : "eye-outline"} onPress={() => handelPasswordVisibility()} />}
                             />
                         </Col>
                         <Col style={{ marginBottom: 15 }} xs="12">

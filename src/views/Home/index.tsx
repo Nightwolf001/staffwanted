@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import moment from 'moment';
+import { Drawer } from 'react-native-drawer-layout';
 
 import { MAPS_API_KEY } from '@env';
 
@@ -14,7 +14,7 @@ import { Container, Row, Col } from 'react-native-flex-grid';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { GreetingsText } from "../../components";
+import { Menu, GreetingsText } from "../../components";
 import { User } from '../../types';
 
 import { styles } from "../../theme/styles";
@@ -23,8 +23,10 @@ const Home: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
+    const [menu_visible, setMenuVisible] = React.useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+
     
     useEffect(() => {
         (async () => {
@@ -34,6 +36,7 @@ const Home: FC = () => {
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
+            <Menu menu_visible={menu_visible} setMenuVisible={setMenuVisible} />
             <View style={{ flex: .8, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
                 <Container fluid>
                     <Row>
@@ -42,7 +45,7 @@ const Home: FC = () => {
                                 icon="menu"
                                 iconColor={theme.colors.onPrimary}
                                 size={25}
-                                onPress={() => console.log('Pressed')}
+                                onPress={() => setMenuVisible(true)}
                             />
                         </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-start' }} xs="12">
@@ -57,6 +60,7 @@ const Home: FC = () => {
 
                 </ScrollView>
             </View>                                
+            
         </View>
     );
 };
