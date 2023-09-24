@@ -33,7 +33,7 @@ const Profile: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
-    const [menu_visible, setMenuVisible] = React.useState(false);
+    const [menu_visible, setMenuVisible] = useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
@@ -105,9 +105,6 @@ const Profile: FC = () => {
         setDateEndOpen(false);
     };
 
-    const onToggleProfileVisibility = () => setIsProfileVisible(!is_profile_visible);
-    const onToggleProfileBoost = () => setIsProfileBoosted(!is_profile_boosted);
-
     const handelUpdateProfile = async () => {
         setSubmitting(true);
         const response = await updateProfile(user.id, user_data);
@@ -134,7 +131,7 @@ const Profile: FC = () => {
                                 icon="menu"
                                 iconColor={theme.colors.onPrimary}
                                 size={25}
-                                onPress={() => console.log('Pressed')}
+                                onPress={() => setModalVisible(true)}
                             />
                         </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-start' }} xs="8">
@@ -157,18 +154,6 @@ const Profile: FC = () => {
                     <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Manage profile.</Text>
                     <Container fluid>
                         <Row style={{ justifyContent: 'center' }}>
-                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from employers?</Text>
-                            </Col>
-                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                <Switch value={is_profile_visible} onValueChange={onToggleProfileVisibility} />
-                            </Col>
-                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engament?</Text>
-                            </Col>
-                            <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                <Switch value={is_profile_boosted} onValueChange={onToggleProfileBoost} />
-                            </Col>
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <TextInput
                                     mode='outlined'

@@ -26,11 +26,18 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     const [currentAppState, setCurrentAppState] = useState<string>(AppState.currentState);
 
     useEffect(() => {
+        console.log('AuthProvider useEffect', currentAppState, previousAppState);
         (async () => {
             const handleAppStateChange = async (nextAppState: AppStateStatus) => {
                 if (currentAppState === 'background' && nextAppState === 'active') {
                     const token = await AsyncStorage.getItem('token');
-                    if (token) { setToken(token) }
+                    console.log('token', token);
+                    if (token) { 
+                        setIsAuthenticated(true);
+                        fetchLoggedInUser();
+                    } else {
+                        setIsAuthenticated(false);
+                    }
                 }
                 setPreviousAppState(currentAppState);
                 setCurrentAppState(nextAppState);
@@ -49,19 +56,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         })();
     }, [currentAppState, previousAppState]);
 
-    useEffect(() => {
-        (async () => {
-            console.log('AuthProvider useEffect', token);
-            if(token.length !== 0) {
-                fetchLoggedInUser();
-            } else {
-                //dispatch(setUser({}));
-                setIsAuthenticated(false);
-                return;
-            }
-        })();
-    }, [token]);
-
     const fetchLoggedInUser = async () => {
         setIsLoading(true);
         try {
@@ -77,7 +71,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             } else {
 
                 let { data } = await fetchProfile(profile_id);
-        
                 let { attributes } = data;
                 user = attributes
                 user.id = profile_id;
@@ -85,10 +78,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 user.experience = attributes.experience.data.id;
                 user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
                 user.job_roles = _.map(attributes.job_roles.data, 'id');
-
                 dispatch(setUser(user));
-                setIsAuthenticated(true);
-
             }
 
         } catch (error) {

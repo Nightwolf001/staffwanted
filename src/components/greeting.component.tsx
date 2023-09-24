@@ -10,7 +10,7 @@ const GreetingsText = () => {
 
     useEffect(() => {
         handelGreetings();
-    }, []);
+    });
 
     const handelGreetings = () => {
         let currentHour = parseInt(moment().format('HH'), 10); // Convert the currentHour variable to a number

@@ -5,6 +5,34 @@ import { API_BASE } from "@env";
 import { Coord, User } from '../types';
 import axiosInstance from '../services/interceptor.service';
 
+
+export const registerAccount = async (coord: Coord, email: string, password: string) => {
+    console.log('registerAccount', coord, email);
+    try {
+
+        const { data } = await axios.post(
+            `${API_BASE}/auth/local/register`,
+            {   
+                username: email,
+                user_type: 'employee',
+                email: email,
+                password: password,
+                coord: coord
+            },
+            {
+                headers: { 'Content-Type': 'application/json' }
+            }
+
+        );
+
+        console.log('registerAccount response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('registerAccount ex', JSON.stringify(ex));
+    }
+}
+
 export const createAccount = async (coord: Coord, email: string, password: string) => {
     console.log('createAccount', coord, email);
     try {

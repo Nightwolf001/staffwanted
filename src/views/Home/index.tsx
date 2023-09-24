@@ -1,13 +1,9 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { Drawer } from 'react-native-drawer-layout';
-
-import { MAPS_API_KEY } from '@env';
 
 import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
-
 
 import { Container, Row, Col } from 'react-native-flex-grid';
 

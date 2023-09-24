@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { View, Modal, ScrollView } from "react-native";
 import { Container, Row, Col } from 'react-native-flex-grid';
-import { useTheme, Text, IconButton, Button } from 'react-native-paper';
+import { useTheme, Text, IconButton, Button, Switch } from 'react-native-paper';
 
 import { styles } from "../theme/styles";
 import { logout } from "../services/interceptor.service";
@@ -30,6 +30,18 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
+    const [is_profile_visible, setIsProfileVisible] = useState<boolean>(false);
+    const [is_profile_boosted, setIsProfileBoosted] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+
+            setIsProfileVisible(user.hide_profile);
+            setIsProfileBoosted(user.profile_boosted);
+
+        })()
+    }, []);
+
     const logUserOut =  async () => {
         let {data} = await updateProfile(user.id, { user_logged_in: false })
         let { id, attributes } = data;
@@ -39,6 +51,19 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
         setMenuVisible(false);
         navigation.navigate('Login');
     }
+
+    const clearProfile = async () => {
+        let { data } = await updateProfile(user.id, { user_logged_in: false })
+        let { id, attributes } = data;
+        attributes.id = id;
+        dispatch(setUser({} as User));
+        await logout();
+        setMenuVisible(false);
+        navigation.navigate('Login');
+    }
+
+    const onToggleProfileVisibility = () => setIsProfileVisible(!is_profile_visible);
+    const onToggleProfileBoost = () => setIsProfileBoosted(!is_profile_boosted);
 
     return (
         <Modal
@@ -72,8 +97,23 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
                     <ScrollView>
                         <Container fluid>
                             <Row style={{ justifyContent: 'center' }}>
+                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
+                                    <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from employers?</Text>
+                                </Col>
+                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
+                                    <Switch value={is_profile_visible} onValueChange={onToggleProfileVisibility} />
+                                </Col>
+                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
+                                    <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engament?</Text>
+                                </Col>
+                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
+                                    <Switch value={is_profile_boosted} onValueChange={onToggleProfileBoost} />
+                                </Col>
                                 <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">
                                     <Button onPress={() => { logUserOut() }} style={{ width: '100%', marginBottom: 10 }} mode="contained" color={theme.colors.primary} labelStyle={{ color: theme.colors.onPrimary }}>Logout</Button>
+                                </Col>
+                                <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">
+                                    <Button onPress={() => { clearProfile() }} style={{ width: '100%', marginBottom: 10 }} mode="contained" color={theme.colors.primary} labelStyle={{ color: theme.colors.onPrimary }}>Clear Profile</Button>
                                 </Col>
                             </Row>
                         </Container>        
