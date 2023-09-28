@@ -1,14 +1,17 @@
 import React, { FC, useState, useContext } from "react";
 import { useDispatch } from 'react-redux';
+
+
 import { View, Image, TouchableOpacity } from "react-native";
-import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { Container, Row, Col } from 'react-native-flex-grid';
+import { useTheme, TextInput, Button, Text, Snackbar } from 'react-native-paper';
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { createAccount } from "../../actions/account.actions";
 import { setUser } from "../../redux/reducers/user.reducer";
+import { createAccount, loginAccount } from "../../actions/account.actions";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppLocationContext } from '../../context/appLocationContext';
 
 import { styles } from "../../theme/styles";
@@ -41,6 +44,10 @@ const SignUp: FC = () => {
             console.log('data.attributes', response.data.attributes);
             let user = response.data.attributes;
             user.id = response.data.id;
+
+            let { jwt } = await loginAccount(coord, email, password);
+            await AsyncStorage.setItem('token', jwt);
+
             dispatch(setUser(user));
             navigation.navigate('CreateProfile');
         } else {

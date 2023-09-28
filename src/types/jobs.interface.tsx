@@ -1,3 +1,26 @@
+export interface JobsList {
+    data: Job[]
+    meta: any
+}
+
+export interface Job {
+    id: number;
+    attributes: JobAttributes;
+}
+
+export interface JobAttributes {
+    title: string;
+    description: string;
+    location: string;
+    salary: string;
+    coords: any;
+    place_id: string;
+    job_avatar_uri: string;
+    job_role: JobRolesList;
+    preferred_hours: PreferredHoursList;
+    experience: ExperienceItem;
+    employer: EmployerItem;
+}
 
 // job-roles
 export interface JobRolesList {
@@ -21,12 +44,7 @@ export interface JobRolesAttributes {
 
 // preferred-hours
 export interface PreferredHoursList {
-    data: PreferredHoursItem[]
-    meta: any
-}
-
-export interface PreferredHoursItem {
-    data: PreferredHours
+    data: PreferredHours[]
     meta: any
 }
 
@@ -40,21 +58,36 @@ export interface PreferredHoursAttributes {
 }
 
 // previous-experiences
-export interface PreviousExperiencesList {
-    data: PreviousExperiencesItem[]
-    meta: any
+export interface ExperienceItem {
+    data: Experience;
+    meta: any;
 }
 
-export interface PreviousExperiencesItem {
-    data: PreviousExperiences
-    meta: any
-}
-
-export interface PreviousExperiences {
+export interface Experience {
     id: number;
-    attributes: PreviousExperiencesAttributes;
+    attributes: ExperiencesAttributes;
 }
 
-export interface PreviousExperiencesAttributes {
+export interface ExperiencesAttributes {
     name: string;
+}
+
+export interface EmployerItem {
+    data: Employer;
+    meta: any;
+}
+
+export interface Employer {
+    id: number;
+    attributes: EmployerAttributes;
+}
+
+export interface EmployerAttributes {
+    company_name: string;
+    company_email: string;
+    company_number: string;
+    company_location: string;
+    coords: any;
+    place_id: string;
+    company_avatar_url: string;
 }

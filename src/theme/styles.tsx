@@ -263,6 +263,23 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
     },
+    // card
+    job_card: {
+        width: '100%',
+        display: 'flex',
+        borderRadius: 10,
+        marginBottom: 10,
+        padding: 10,
+        backgroundColor: '#fafafa',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 10
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
+    },
+    
 });
 
 export { styles }

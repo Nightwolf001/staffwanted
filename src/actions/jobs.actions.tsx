@@ -1,5 +1,16 @@
 import axios from 'axios';
 import { API_BASE } from "@env";
+import axiosInstance from '../services/interceptor.service';
+
+export const fetchAllJobs = async (profile_id : number) => {
+    try {
+        const { data } = await axiosInstance.get(`${API_BASE}/jobs/employee/${profile_id}`);
+        console.log('fetchAllJobs data', data);
+        return data;
+    } catch (ex) {
+        console.log('fetchAllJobs ex', JSON.stringify(ex));
+    }
+}
 
 export const fetchJobRoles = async () => {
     try {

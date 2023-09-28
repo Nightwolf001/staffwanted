@@ -1,22 +1,24 @@
 import React, { FC, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import moment from 'moment';
 
+import moment from 'moment';
 import { RNCamera } from 'react-native-camera';
+import Dropdown from 'react-native-input-select';
+import { DatePickerModal } from 'react-native-paper-dates';
+import { Container, Row, Col } from 'react-native-flex-grid';
 import { View, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
-import { DatePickerModal } from 'react-native-paper-dates';
-import Dropdown from 'react-native-input-select';
-import { Container, Row, Col } from 'react-native-flex-grid';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
-import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 import { createProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
+import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 
+import { MAPS_API_KEY } from '@env';
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
 
@@ -42,6 +44,7 @@ const CreateProfile: FC = () => {
     const [dob, setDob] = useState<any>(null);
     const [start_date, setStartDate] = useState<any>(null);
     const [end_date, setEndDate] = useState<any>(null);
+    const [location_modal_visible, setLocationModalVisible] = useState<boolean>(false);
 
     const [user, setUserData] = useState<User>(user_state);
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -61,9 +64,11 @@ const CreateProfile: FC = () => {
             let preferredHours = await fetchPreferredHours();
             setPreferredHours(preferredHours?.data);
 
-            setDob(user_state.date_of_birth);
-            setStartDate(user_state.start_date);
-            setEndDate(user_state.end_date);
+            setDob('');
+            setStartDate('');
+            setEndDate('');
+
+            // setUserData({ ...user, avatar_id: 99999 });
 
         })()
     }, []);
@@ -256,15 +261,80 @@ const CreateProfile: FC = () => {
                                 </Col>
                             }
                             <Col style={{ marginBottom: 15 }} xs="12">
-                                <TextInput
-                                    mode='outlined'
-                                    label="Location"
-                                    placeholderTextColor={theme.colors.primary}
-                                    outlineColor={theme.colors.primary}
-                                    outlineStyle={{ borderRadius: 15 }}
-                                    value={user.location}
-                                    onChangeText={(text) => setUserData({ ...user, location: text })}
-                                />
+                                <>
+                                    <TextInput
+                                        label={'Location'}
+                                        mode='outlined'
+                                        multiline={false}
+                                        outlineColor={theme.colors.primary}
+                                        outlineStyle={{ borderRadius: 15 }}
+                                        value={user.location}
+                                        onFocus={() => setLocationModalVisible(true)}
+                                        onBlur={() => setLocationModalVisible(false)}
+                                        onTouchStart={() => setLocationModalVisible(true)}
+                                        onTouchEnd={() => setLocationModalVisible(false)}
+                                        editable={false}
+                                        right={<TextInput.Icon icon="map-marker-circle" onPress={() => setLocationModalVisible(true)} />}
+                                    />
+                                    <Modal
+                                        style={[styles.wrapper]}
+                                        animationType="slide"
+                                        transparent={false}
+                                        visible={location_modal_visible}
+                                        onRequestClose={() => { setLocationModalVisible(false) }}
+                                        presentationStyle={"pageSheet"}
+                                    >
+                                        <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary }}>
+                                            <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
+                                                <Container fluid>
+                                                    <Row>
+                                                        <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="10">
+                                                            <Text style={[styles.text_white_heading]} variant="headlineSmall">Search your location.</Text>
+                                                        </Col>
+                                                        <Col style={{ alignItems: 'flex-end', justifyContent: 'center' }} xs="2">
+                                                            <IconButton
+                                                                icon="close"
+                                                                iconColor={theme.colors.onPrimary}
+                                                                size={30}
+                                                                onPress={() => setLocationModalVisible(false)}
+                                                            />
+                                                        </Col>
+                                                    </Row>
+                                                </Container>
+                                            </View>
+
+                                            <View style={[{ borderTopEndRadius: 35, borderTopStartRadius: 35, padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
+                                                <ScrollView>
+                                                    <GooglePlacesAutocomplete
+                                                        styles={{
+                                                            textInput: {
+                                                                borderRadius: 15,
+                                                                borderWidth: 1,
+                                                                borderColor: theme.colors.primary,
+                                                                color: '#5d5d5d',
+                                                                fontSize: 16,
+                                                            },
+                                                            predefinedPlacesDescription: {
+                                                                color: '#1faadb',
+                                                            },
+                                                        }}
+                                                        placeholder='Search for your location...'
+                                                        fetchDetails={true}
+                                                        onPress={(data, details = null) => {
+                                                            setUserData({ ...user, location: data.description, place_id: data.place_id })
+                                                            setLocationModalVisible(false);
+                                                        }}
+                                                        query={{
+                                                            key: MAPS_API_KEY,
+                                                            language: 'en',
+                                                            types: 'geocode'
+                                                        }}
+                                                    />
+                                                </ScrollView>
+                                            </View>
+                                        </View>
+                                    </Modal>
+                                </>
                             </Col>
                             {all_job_roles.length !== 0 &&
                                 <Col style={{ marginBottom: 9 }} xs="12">

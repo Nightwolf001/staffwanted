@@ -48,8 +48,6 @@ const Profile: FC = () => {
 
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [modal_visible, setModalVisible] = useState<boolean>(false);
-    const [is_profile_visible, setIsProfileVisible] = useState<boolean>(false);
-    const [is_profile_boosted, setIsProfileBoosted] = useState<boolean>(false);
 
     const [user_data, setUserData] = useState<User>(user);
 
@@ -67,8 +65,6 @@ const Profile: FC = () => {
 
             setStartDate(user_data.start_date);
             setEndDate(user_data.end_date);
-            setIsProfileVisible(user_data.hide_profile);
-            setIsProfileBoosted(user_data.profile_boosted);
 
         })()
     }, []);
@@ -131,7 +127,7 @@ const Profile: FC = () => {
                                 icon="menu"
                                 iconColor={theme.colors.onPrimary}
                                 size={25}
-                                onPress={() => setModalVisible(true)}
+                                onPress={() => setMenuVisible(true)}
                             />
                         </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-start' }} xs="8">

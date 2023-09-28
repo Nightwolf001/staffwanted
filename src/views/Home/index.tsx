@@ -1,8 +1,8 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
-import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
+import { View, Image, ScrollView, Modal, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
 
 import { Container, Row, Col } from 'react-native-flex-grid';
@@ -10,8 +10,10 @@ import { Container, Row, Col } from 'react-native-flex-grid';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { Job, JobsList } from "../../types";
+import { JobCard } from "./components";
+import { fetchAllJobs } from "../../actions/jobs.actions";
 import { Menu, GreetingsText } from "../../components";
-import { User } from '../../types';
 
 import { styles } from "../../theme/styles";
 
@@ -19,16 +21,29 @@ const Home: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
-    const [menu_visible, setMenuVisible] = React.useState(false);
+    const [menu_visible, setMenuVisible] = useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
-    
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [jobsList, setJobsList] = useState<JobsList>();
+
     useEffect(() => {
         (async () => {
-            console.log('Home: ', user);
+            await fetchData();
         })()
     }, []);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchData();
+        setRefreshing(false);
+    }, []);
+
+    const fetchData = async () => {
+        const jobs = await fetchAllJobs(user.id);
+        setJobsList(jobs);
+    }
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
@@ -52,8 +67,19 @@ const Home: FC = () => {
                 </Container>
             </View>
             <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
-                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-
+                <ScrollView 
+                    contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={'#000'}
+                        />
+                    }
+                >
+                    {jobsList && jobsList.data.length !== 0 && jobsList?.data.map((item, index) => (
+                        <JobCard key={index} job={item as Job} />
+                    ))}
                 </ScrollView>
             </View>                                
             
