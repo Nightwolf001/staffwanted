@@ -79,7 +79,7 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
                     <Container fluid>
                         <Row style={{ justifyContent: 'center' }}>
                             <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="6">
-                                <Text style={[styles.text_white_heading]} variant="headlineSmall">Menu.</Text>
+                                <Text style={[styles.text_white_heading]} variant="headlineSmall">Menu</Text>
                             </Col>   
                             <Col style={{ alignItems: 'flex-end', justifyContent: 'center' }} xs="6">
                                 <IconButton

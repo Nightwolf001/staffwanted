@@ -16,7 +16,10 @@ import CreateProfileVideo from './views/CreateProfileVideo';
 import Home from "./views/Home";
 import Inbox from "./views/Inbox";
 import Jobs from "./views/Jobs";
+import Job from "./views/Job";
 import Profile from "./views/Profile";
+
+import { RootStackParamList } from './types';
 
 const HomeStack = createNativeStackNavigator();
 const HomeStackScreens = () => (
@@ -25,6 +28,20 @@ const HomeStackScreens = () => (
             name="Home"
             component={Home}
             options={{ headerShown: false }}
+        />
+        <HomeStack.Screen
+            name="Job"
+            component={Job}
+            initialParams={{ job: { id: 1, attributes: {}} }}
+            options={{
+                title: 'Job',
+                headerBackButtonMenuEnabled: true,
+                headerBackTitleVisible: false,
+                headerTintColor: '#fff',
+                headerStyle: {
+                    backgroundColor: '#004A8F',
+                },
+            }}
         />
     </HomeStack.Navigator>
 );
@@ -144,7 +161,7 @@ const AppTabsScreens = () => (
 );
 
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const AppContainer = () => {
     return (
         <NavigationContainer>

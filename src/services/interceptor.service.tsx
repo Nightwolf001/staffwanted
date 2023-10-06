@@ -17,7 +17,9 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     async (config) => {
         const token = await AsyncStorage.getItem('token');
+        const user_id = await AsyncStorage.getItem('user_id');
         config.headers.Authorization = `Bearer ${token}`;
+        config.headers.user_id = user_id;
         return config;
     },
     (error) => {

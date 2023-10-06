@@ -48,6 +48,7 @@ const Login: FC = () => {
                 return;
             } else {
                 await AsyncStorage.setItem('token', jwt);
+                await AsyncStorage.setItem('user_id', JSON.stringify(user.profile_id));
                 await updateProfile(user.profile_id, {user_logged_in: true})
                 let { data } = await fetchProfile(user.profile_id);
                 

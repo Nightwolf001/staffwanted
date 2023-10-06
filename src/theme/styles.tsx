@@ -279,6 +279,21 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 3,
     },
+    job_pill: {
+        backgroundColor: light_blue,
+        borderRadius: 15,
+        padding: 5,
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginRight: 10,
+    },
+    job_image: {
+        width: 130,
+        height: 130,
+        borderRadius: 15,
+        marginTop: 20,
+        resizeMode: "cover",
+    },
     
 });
 

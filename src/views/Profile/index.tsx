@@ -147,7 +147,7 @@ const Profile: FC = () => {
             </View>
             <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
                 <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-                    <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Manage profile.</Text>
+                    <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Manage your profile</Text>
                     <Container fluid>
                         <Row style={{ justifyContent: 'center' }}>
                             <Col style={{ marginBottom: 9 }} xs="12">

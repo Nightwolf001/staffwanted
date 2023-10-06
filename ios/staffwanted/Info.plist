@@ -24,6 +24,27 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Staff Wanted requires to access your camera</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Staff Wanted requires to access your microphone</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Staff Wanted requires to access your camera roll</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Staff Wanted requires to access your camera roll</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -46,27 +67,6 @@
 		<string>Zocial.ttf</string>
 		<string>Fontisto.ttf</string>
 	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
-	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSCameraUsageDescription</key>
-	<string>Staff Wanted requires to access your camera</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Staff Wanted requires to access your camera roll</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Staff Wanted requires to access your camera roll</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Staff Wanted requires to access your microphone</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

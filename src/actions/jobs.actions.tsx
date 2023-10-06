@@ -2,9 +2,9 @@ import axios from 'axios';
 import { API_BASE } from "@env";
 import axiosInstance from '../services/interceptor.service';
 
-export const fetchAllJobs = async (profile_id : number) => {
+export const fetchAllJobs = async (filters : any) => {
     try {
-        const { data } = await axiosInstance.get(`${API_BASE}/jobs/employee/${profile_id}`);
+        const { data } = await axiosInstance.get(`${API_BASE}/jobs/filterd?search=${filters.search}&job_roles=${filters.job_roles}&experience=${filters.experience}&preferred_hours=${filters.preferred_hours}&salary=${filters.salary}&lat=${filters.coord.lat}&lng=${filters.coord.lng}&distance=${filters.distance}`);
         console.log('fetchAllJobs data', data);
         return data;
     } catch (ex) {

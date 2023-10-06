@@ -16,20 +16,16 @@ export interface JobAttributes {
     coords: any;
     place_id: string;
     job_avatar_uri: string;
-    job_role: JobRolesList;
+    job_roles: JobRolesList;
     preferred_hours: PreferredHoursList;
     experience: ExperienceItem;
     employer: EmployerItem;
+    bookmarked: boolean;
 }
 
 // job-roles
 export interface JobRolesList {
-    data: JobRolesItem[]
-    meta: any
-}
-
-export interface JobRolesItem {
-    data: JobRoles
+    data: JobRoles[]
     meta: any
 }
 

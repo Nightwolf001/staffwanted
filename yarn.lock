@@ -1513,6 +1513,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@miblanchard/react-native-slider@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@miblanchard/react-native-slider/-/react-native-slider-2.3.1.tgz#79e0f1f9b1ce43ef25ee51ee9256c012e5dfa412"
+  integrity sha512-J/hZDBWmXq8fJeOnTVHqIUVDHshqMSpJVxJ4WqwuCBKl5Rke9OBYXIdkSlgi75OgtScAr8FKK5KNkDKHUf6JIg==
+
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
   resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/eslint-scope-5-internals/-/eslint-scope-5-internals-5.1.1-v1.tgz#dbf733a965ca47b1973177dc0bb6c889edcfb129"
@@ -6278,6 +6283,11 @@ react-native-maps@^1.7.1:
   dependencies:
     "@types/geojson" "^7946.0.10"
 
+react-native-pager-view@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-6.2.1.tgz#985d21bbb7d7bc012f4c142dedbb98ce4bdea104"
+  integrity sha512-fZ8chez5J+w831nSnbtK8hwlCiMy1DgpFv8xG6ajXLsAI8uMkGvP554QDIDNlUoCuVwMf7OFyd32Y2Nm2Iaj9Q==
+
 react-native-paper-dates@^0.18.26:
   version "0.18.26"
   resolved "https://registry.yarnpkg.com/react-native-paper-dates/-/react-native-paper-dates-0.18.26.tgz#4a1f8fb4b511b0eba5a0b833286e936f5f85be5e"
@@ -6289,6 +6299,13 @@ react-native-paper-select@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-native-paper-select/-/react-native-paper-select-1.0.2.tgz#d25d0ee0862ed842fb35c82eb25ef87fe1926522"
   integrity sha512-QRuHuPii4v3s6mhTcFaWIT5JyFiNMpu0cgkpG/MrB+ysht6edwq2q57hzvfjZy9fbVA5wctZwJrd6xIccBCs6Q==
+
+react-native-paper-tabs@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/react-native-paper-tabs/-/react-native-paper-tabs-0.10.1.tgz#8cb4336f29baeea1fafae4f6b45c81c1bef53017"
+  integrity sha512-MzLzVJCYP3HuBkfMra1RAIFMfyt3tr9aFW8tMwukVTebZE1+LMF0a700A81sU1iU0xZEjrw+DPDEH/KrwMmJhA==
+  dependencies:
+    color "^4.2.3"
 
 react-native-paper@^5.10.4:
   version "5.10.4"

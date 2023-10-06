@@ -47,6 +47,7 @@ const SignUp: FC = () => {
 
             let { jwt } = await loginAccount(coord, email, password);
             await AsyncStorage.setItem('token', jwt);
+            await AsyncStorage.setItem('user_id', JSON.stringify(user.id));
 
             dispatch(setUser(user));
             navigation.navigate('CreateProfile');

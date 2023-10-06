@@ -5,11 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug iOS",
+            "name": "Debug iOS 15",
             "request": "launch",
             "type": "reactnative",
             "cwd": "${workspaceFolder}",
-            "platform": "ios"
+            "platform": "ios",
+            "runArguments": [
+                "--simulator",
+                "iPhone 15 Pro"
+            ],
         }
     ]
 }

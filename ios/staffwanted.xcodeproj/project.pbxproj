@@ -548,6 +548,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CY3ZMSY7Y;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = staffwanted/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -560,7 +561,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.--PRODUCT-NAME-rfc1034identifier-";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.staffwanted;
 				PRODUCT_NAME = staffwanted;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -575,6 +577,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6CY3ZMSY7Y;
 				INFOPLIST_FILE = staffwanted/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -586,7 +589,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.--PRODUCT-NAME-rfc1034identifier-";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.staffwanted;
 				PRODUCT_NAME = staffwanted;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
