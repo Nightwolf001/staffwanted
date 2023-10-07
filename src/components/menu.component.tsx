@@ -20,7 +20,7 @@ import { setUser } from "../redux/reducers/user.reducer";
 
 type MenuProps = {
     menu_visible: boolean;
-    setMenuVisible: (modal_visible: boolean) => void;
+    setMenuVisible: (menu_visible: boolean) => void;
 }
 
 const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
@@ -62,9 +62,6 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
         navigation.navigate('Login');
     }
 
-    const onToggleProfileVisibility = () => setIsProfileVisible(!is_profile_visible);
-    const onToggleProfileBoost = () => setIsProfileBoosted(!is_profile_boosted);
-
     return (
         <Modal
             style={[styles.wrapper]}
@@ -97,18 +94,6 @@ const Menu = ({ menu_visible, setMenuVisible } : MenuProps) => {
                     <ScrollView>
                         <Container fluid>
                             <Row style={{ justifyContent: 'center' }}>
-                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                    <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Hide your profile from employers?</Text>
-                                </Col>
-                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                    <Switch value={is_profile_visible} onValueChange={onToggleProfileVisibility} />
-                                </Col>
-                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-start' }} xs="10">
-                                    <Text style={[{ paddingTop: 4.5 }]} variant="labelLarge">Boost your profile for higher engament?</Text>
-                                </Col>
-                                <Col style={{ marginBottom: 9, marginTop: 5, alignItems: 'flex-end', }} xs="2">
-                                    <Switch value={is_profile_boosted} onValueChange={onToggleProfileBoost} />
-                                </Col>
                                 <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">
                                     <Button onPress={() => { logUserOut() }} style={{ width: '100%', marginBottom: 10 }} mode="contained" color={theme.colors.primary} labelStyle={{ color: theme.colors.onPrimary }}>Logout</Button>
                                 </Col>

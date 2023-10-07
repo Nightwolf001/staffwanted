@@ -17,8 +17,10 @@ export interface User {
     coord: Coord;
     gender?: number[];
     job_roles?: number[];
-    video_id?: any;
-    avatar_id?: any;
+    video_id?: number;
+    avatar_id?: number;
+    video_url?: string;
+    avatar_url?: string;
     hide_profile: boolean;
     profile_boosted: boolean;
     user_logged_in ?: boolean;

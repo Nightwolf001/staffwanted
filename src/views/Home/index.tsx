@@ -11,7 +11,7 @@ import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Job, JobsList } from "../../types";
@@ -25,9 +25,9 @@ import { styles } from "../../theme/styles";
 const Home: FC = () => {
 
     const theme = useTheme();
-    const dispatch = useDispatch();
+    const isFocused = useIsFocused();
 
-    const user = useSelector((state: RootState) => state.userSlice.user);
+    const user_data = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const [menu_visible, setMenuVisible] = useState(false);
@@ -35,6 +35,7 @@ const Home: FC = () => {
 
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [jobsList, setJobsList] = useState<JobsList>();
+    const [user, setUser] = useState<any>(user_data);
 
     const [all_job_roles, setAllJobRoles] = useState<any>([]);
     const [preferred_hours, setPreferredHours] = useState<any>([]);
@@ -45,7 +46,7 @@ const Home: FC = () => {
         job_roles: user.job_roles,
         experience: user.experience,
         preferred_hours: user.preferred_hours,
-        salary: 0,
+        salary: 10,
         coord: user.coord,
         distance: 15
     });
@@ -53,6 +54,7 @@ const Home: FC = () => {
     useEffect(() => {
         (async () => {
 
+            setUser(user_data);
             setFilters({
                 ...filters,
                 job_roles: user.job_roles,
@@ -61,9 +63,12 @@ const Home: FC = () => {
                 coord: user.coord,
             })
             
-            await fetchData();
+            if(user.job_roles && user.experience && user.preferred_hours) {
+                await fetchData();
+            }
+            
         })()
-    }, [user]);
+    }, [isFocused, user]);
 
     useEffect(() => {
         (async () => {
@@ -88,8 +93,12 @@ const Home: FC = () => {
         let preferredHours = await fetchPreferredHours();
         setPreferredHours(preferredHours?.data);
 
-        const jobs = await fetchAllJobs(filters);
-        setJobsList(jobs); 
+        if (user.job_roles && user.experience && user.preferred_hours ) {
+            const jobs = await fetchAllJobs(filters);
+            setJobsList(jobs);    
+        } else {
+            await fetchData();
+        }
     }
 
     const handelFilter = async () => {
@@ -124,7 +133,7 @@ const Home: FC = () => {
                                     keyboardType="default"
                                     inputMode="search"
                                     mode='outlined'
-                                    placeholder="Search for jobs"
+                                    placeholder="Find your next gig"
                                     value={filters.search}
                                     onChangeText={(text) => setFilters({ ...filters, search: text })}
                                     outlineColor={theme.colors.onPrimary}
@@ -159,8 +168,9 @@ const Home: FC = () => {
                     }
                 >
                     {jobsList && jobsList.data.length !== 0 && jobsList?.data.map((item, index) => (
-                        <JobCard key={index} job={item as Job} navigation={navigation} />
+                        <JobCard key={index} job={item as Job} fetchData={fetchData} navigation={navigation} />
                     ))}
+
                 </ScrollView>
             </View>                                
             <Modal
@@ -249,6 +259,7 @@ const Home: FC = () => {
                                         </Col>
                                     }
                                     <Col style={{ marginBottom: 15}} xs="12">
+                                        {/* // change this to miles  */}
                                         <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance}KM radius</Text>
                                         <Slider
                                             thumbTintColor={theme.colors.primary}
@@ -258,6 +269,25 @@ const Home: FC = () => {
                                             maximumValue={100}
                                             value={filters.distance}
                                             onValueChange={value => setFilters({ ...filters, distance: value })}
+                                        />
+                                    </Col>
+                                    <Col style={{ marginBottom: 15 }} xs="12">
+                                        {/* 
+                                            wage per hour
+                                            salary anualy
+                                            high to low
+                                            low to high
+
+                                        */}
+                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search by salary {filters.salary}</Text>
+                                        <Slider
+                                            thumbTintColor={theme.colors.primary}
+                                            maximumTrackTintColor={theme.colors.primary}
+                                            minimumTrackTintColor={"#96C4E2"}
+                                            step={5}
+                                            maximumValue={1000}
+                                            value={filters.salary}
+                                            onValueChange={value => setFilters({ ...filters, salary: value })}
                                         />
                                     </Col>
                                     <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">

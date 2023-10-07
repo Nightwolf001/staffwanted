@@ -86,4 +86,5 @@ export interface EmployerAttributes {
     coords: any;
     place_id: string;
     company_avatar_url: string;
+    company_description: string;
 }

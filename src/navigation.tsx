@@ -29,20 +29,6 @@ const HomeStackScreens = () => (
             component={Home}
             options={{ headerShown: false }}
         />
-        <HomeStack.Screen
-            name="Job"
-            component={Job}
-            initialParams={{ job: { id: 1, attributes: {}} }}
-            options={{
-                title: 'Job',
-                headerBackButtonMenuEnabled: true,
-                headerBackTitleVisible: false,
-                headerTintColor: '#fff',
-                headerStyle: {
-                    backgroundColor: '#004A8F',
-                },
-            }}
-        />
     </HomeStack.Navigator>
 );
 
@@ -200,6 +186,20 @@ const AppContainer = () => {
                     name="TabNavigation"
                     component={AppTabsScreens}
                     options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Job"
+                    component={Job}
+                    initialParams={{ job: { id: 1, attributes: {} } }}
+                    options={{
+                        title: 'Job',
+                        headerBackButtonMenuEnabled: true,
+                        headerBackTitleVisible: false,
+                        headerTintColor: '#fff',
+                        headerStyle: {
+                            backgroundColor: '#004A8F',
+                        },
+                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

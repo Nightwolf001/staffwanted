@@ -1,9 +1,10 @@
 import axios from 'axios';
-import moment from 'moment';
 
 import { API_BASE } from "@env";
 import { Coord, User } from '../types';
 import axiosInstance from '../services/interceptor.service';
+
+var _ = require('lodash');
 
 
 export const registerAccount = async (coord: Coord, email: string, password: string) => {
@@ -103,12 +104,19 @@ export const updateProfile = async (profile_id : number, post_data: any) => {
     try {
 
         const { data } = await axios.put(
-            `${API_BASE}/employees/${profile_id}`, {
+            `${API_BASE}/employees/${profile_id}?populate=*`, {
                 data: post_data
         }, {
             headers: { 'Content-Type': 'application/json' }
         }
         );
+
+        let { attributes } = data.data;
+        attributes.id = data.data.id
+        attributes.gender = attributes.gender.data.id;
+        attributes.experience = attributes.experience.data.id;
+        attributes.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
+        attributes.job_roles = _.map(attributes.job_roles.data, 'id');
 
         console.log('updateProfile response', data);
         return data;

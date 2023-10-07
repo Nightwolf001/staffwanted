@@ -42,5 +42,23 @@ export const fetchPreferredHours = async () => {
     }
 }
 
+export const handleBookmarkJob = async (job_id: number, bookmarked: boolean) => {
+    try {
+        
+        const { data } = await axiosInstance.post(
+            `${API_BASE}/employee-job-map/update-or-create`, {
+                job_id: job_id,
+                bookmarked: bookmarked
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        }
+        );
+        
+        return data;
+    } catch (ex) {
+        console.log('fetchJobRoles ex', JSON.stringify(ex));
+    }
+}
+
 
 

@@ -288,10 +288,10 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     job_image: {
-        width: 130,
-        height: 130,
+        width: 100,
+        height: 100,
         borderRadius: 15,
-        marginTop: 20,
+        marginTop: 10,
         resizeMode: "cover",
     },
     
