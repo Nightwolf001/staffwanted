@@ -3,6 +3,28 @@ export interface JobsList {
     meta: any
 }
 
+export interface JobsShortlist {
+    data: JobsMatch[]
+    meta: any
+}
+
+export interface JobsMatch {
+    id: number;
+    attributes: JobsMatchesAttributes;
+}
+
+export interface JobsMatchJob {
+    data: Job;   
+}
+
+export interface JobsMatchesAttributes {
+    bookmarked: boolean;
+    applied: boolean;
+    application_status: string;
+    status_description: string;
+    job: JobsMatchJob;
+}
+
 export interface Job {
     id: number;
     attributes: JobAttributes;

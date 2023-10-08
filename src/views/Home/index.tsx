@@ -42,7 +42,7 @@ const Home: FC = () => {
     const [experiences, setExperiences] = useState<any>([]);
 
     const [filters, setFilters] = useState<any>({
-        search: '',
+        search: "",
         job_roles: user.job_roles,
         experience: user.experience,
         preferred_hours: user.preferred_hours,
@@ -54,6 +54,7 @@ const Home: FC = () => {
     useEffect(() => {
         (async () => {
 
+            if(!isFocused) return;
             setUser(user_data);
             setFilters({
                 ...filters,
@@ -204,8 +205,21 @@ const Home: FC = () => {
                         <ScrollView>
                             <Container fluid>
                                 <Row style={{ justifyContent: 'center' }}>
+                                    <Col style={{ marginTop: 15 }} xs="12">
+                                        {/* // change this to miles  */}
+                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance}KM radius</Text>
+                                        <Slider
+                                            thumbTintColor={theme.colors.primary}
+                                            maximumTrackTintColor={theme.colors.primary}
+                                            minimumTrackTintColor={"#96C4E2"}
+                                            step={5}
+                                            maximumValue={100}
+                                            value={filters.distance}
+                                            onValueChange={value => setFilters({ ...filters, distance: value })}
+                                        />
+                                    </Col>
                                     {all_job_roles.length !== 0 &&
-                                        <Col style={{ marginBottom: 15 }} xs="12">
+                                        <Col style={{ marginBottom: 5 }} xs="12">
                                             <Dropdown
                                                 label="Interested in these job roles"
                                                 key={'all_job_roles'}
@@ -213,7 +227,9 @@ const Home: FC = () => {
                                                 isMultiple={true}
                                                 placeholderStyle={{ color: theme.colors.primary }}
                                                 dropdownContainerStyle={{ marginBottom: 0 }}
-                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                                dropdownIconStyle={{ top: 20 }}
+                                                labelStyle={{ top: 10, left: 5 }}
+                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 10 }}
                                                 options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
                                                     { value: job.id, label: job.attributes.role }
                                                 ))}
@@ -224,13 +240,15 @@ const Home: FC = () => {
                                         </Col>
                                     }
                                     {experiences.length !== 0 &&
-                                        <Col style={{ marginBottom: 15 }} xs="12">
+                                        <Col style={{ marginBottom: 5 }} xs="12">
                                             <Dropdown
                                                 label="Previous Experience"
                                                 placeholder="Previous Experience"
                                                 placeholderStyle={{ color: theme.colors.primary }}
                                                 dropdownContainerStyle={{ marginBottom: 0 }}
-                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                                dropdownIconStyle={{ top: 20 }}
+                                                labelStyle={{ top: 10, left: 5 }}
+                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 50, paddingVertical: 10 }}
                                                 options={experiences.length !== 0 && experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                                     { value: experience.id, label: experience.attributes.name }
                                                 ))}
@@ -248,7 +266,9 @@ const Home: FC = () => {
                                                 isMultiple={true}
                                                 placeholderStyle={{ color: theme.colors.primary }}
                                                 dropdownContainerStyle={{ marginBottom: 0 }}
-                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                                dropdownIconStyle={{ top: 20 }}
+                                                labelStyle={{ top: 10, left: 5 }}
+                                                dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 10 }}
                                                 options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
                                                     { value: hours.id, label: hours.attributes.name }
                                                 ))}
@@ -258,20 +278,7 @@ const Home: FC = () => {
                                             />
                                         </Col>
                                     }
-                                    <Col style={{ marginBottom: 15}} xs="12">
-                                        {/* // change this to miles  */}
-                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance}KM radius</Text>
-                                        <Slider
-                                            thumbTintColor={theme.colors.primary}
-                                            maximumTrackTintColor={theme.colors.primary}
-                                            minimumTrackTintColor={"#96C4E2"}
-                                            step={5}
-                                            maximumValue={100}
-                                            value={filters.distance}
-                                            onValueChange={value => setFilters({ ...filters, distance: value })}
-                                        />
-                                    </Col>
-                                    <Col style={{ marginBottom: 15 }} xs="12">
+                                    {/* <Col style={{ marginBottom: 15 }} xs="12"> */}
                                         {/* 
                                             wage per hour
                                             salary anualy
@@ -279,7 +286,7 @@ const Home: FC = () => {
                                             low to high
 
                                         */}
-                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search by salary {filters.salary}</Text>
+                                        {/* <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search by salary {filters.salary}</Text>
                                         <Slider
                                             thumbTintColor={theme.colors.primary}
                                             maximumTrackTintColor={theme.colors.primary}
@@ -289,7 +296,7 @@ const Home: FC = () => {
                                             value={filters.salary}
                                             onValueChange={value => setFilters({ ...filters, salary: value })}
                                         />
-                                    </Col>
+                                    </Col> */}
                                     <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">
                                         <Button onPress={() => { handelFilter() }} style={{ width: '100%', marginBottom: 10 }} mode="contained" color={theme.colors.primary} labelStyle={{ color: theme.colors.onPrimary }}>Apply Filters</Button>
                                     </Col>

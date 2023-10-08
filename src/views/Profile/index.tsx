@@ -54,8 +54,7 @@ const Profile: FC = () => {
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [modal_visible, setModalVisible] = useState<boolean>(false);
 
-    const [section, setSection] = React.useState('job');
-
+    const [section, setSection] = useState('job');
     const [user_data, setUserData] = useState<User>(user);
 
     useEffect(() => {

@@ -1,34 +1,74 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
-import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
+import { View, Image, ScrollView, Modal, TouchableOpacity, Alert, RefreshControl } from "react-native";
+import { useTheme, TextInput, Button, Text, IconButton, SegmentedButtons } from 'react-native-paper';
 
 import { Container, Row, Col } from 'react-native-flex-grid';
 
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { Job, JobsMatch } from "../../types";
+import { JobCard } from "./components";
+
 import { Menu, GreetingsText } from "../../components";
-import { User } from '../../types';
+import { fetchJobMatches } from "../../actions/jobs.actions";
 
 import { styles } from "../../theme/styles";
 
 const Jobs: FC = () => {
 
     const theme = useTheme();
-    const dispatch = useDispatch();
-    const [menu_visible, setMenuVisible] = React.useState(false);
+    const isFocused = useIsFocused();
+
+    const [menu_visible, setMenuVisible] = useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+
+    const [section, setSection] = useState('bookmarked');
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+
+    const [bookmarkedJobs, setBookmarkedJobs] = useState<JobsMatch[]>([]);
+    const [appliedJobs, setAppliedJobs] = useState<JobsMatch[]>([]);
 
 
     useEffect(() => {
         (async () => {
-            console.log('Jobs: ', user);
+
+            if(!isFocused) return;
+            await fetchData();
+
         })()
+    }, [isFocused]);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchData();
+        setRefreshing(false);
     }, []);
+
+    const fetchData = async () => {
+        setBookmarkedJobs([]);
+        setAppliedJobs([]);
+        let { data } = await fetchJobMatches();
+
+        for (let i = 0; i < data.length; i++) {
+            const job_match = data[i];
+
+            if (job_match.attributes.bookmarked) {
+                setBookmarkedJobs(prevState => [...prevState, job_match]);
+            }
+
+            if (job_match.attributes.applied) {
+                setAppliedJobs(prevState => [...prevState, job_match]);
+            }
+
+        }
+    }
+
+    console.log('section', section);
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
@@ -52,7 +92,64 @@ const Jobs: FC = () => {
                 </Container>
             </View>
             <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
-                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+                <Container fluid>
+                    <SegmentedButtons
+                        value={section}
+                        onValueChange={setSection}
+                        buttons={[
+                            {
+                                value: 'bookmarked',
+                                label: 'Bookmarked',
+                                checkedColor: theme.colors.primary,
+                                uncheckedColor: theme.colors.primary,
+                            },
+                            {
+                                value: 'applications',
+                                label: 'Applications',
+                                checkedColor: theme.colors.primary,
+                                uncheckedColor: theme.colors.primary,
+
+                            },
+                        ]}
+                    />
+                </Container> 
+                <ScrollView
+                    contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={'#000'}
+                        />
+                    }
+                >   
+                    {section === 'bookmarked' &&
+
+                        bookmarkedJobs && bookmarkedJobs.length !== 0 ?
+                        bookmarkedJobs.map((job_match: JobsMatch, index: number) => (
+                            <JobCard key={index} job_match={job_match} fetchData={fetchData} />
+                        ))
+                    :
+                        <Row>
+                            <Col xs="12">
+                                <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No bookmarked jobs</Text>
+                            </Col>
+                        </Row>
+                        
+                    }
+
+                    {section === 'applications' &&
+                        appliedJobs && appliedJobs.length !== 0 ?
+                        appliedJobs.map((job_match: JobsMatch, index: number) => (
+                            <JobCard key={index} job_match={job_match} fetchData={fetchData} />
+                        ))
+                        :
+                        <Row>
+                            <Col xs="12">
+                                <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No Applied jobs</Text>
+                            </Col>
+                        </Row>
+                    }
 
                 </ScrollView>
             </View>

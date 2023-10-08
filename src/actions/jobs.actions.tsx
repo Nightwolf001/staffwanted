@@ -46,7 +46,7 @@ export const handleBookmarkJob = async (job_id: number, bookmarked: boolean) => 
     try {
         
         const { data } = await axiosInstance.post(
-            `${API_BASE}/employee-job-map/update-or-create`, {
+            `${API_BASE}/employee-job-match/upsert`, {
                 job_id: job_id,
                 bookmarked: bookmarked
         }, {
@@ -59,6 +59,16 @@ export const handleBookmarkJob = async (job_id: number, bookmarked: boolean) => 
         console.log('fetchJobRoles ex', JSON.stringify(ex));
     }
 }
+
+export const fetchJobMatches = async () => {
+    try {
+        const { data } = await axiosInstance.get(`${API_BASE}/employee-job-matches`);
+        return data;
+    } catch (ex) {
+        console.log('fetchJobRoles ex', JSON.stringify(ex));
+    }
+}
+
 
 
 
