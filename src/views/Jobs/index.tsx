@@ -1,16 +1,16 @@
 import React, { FC, useEffect, useCallback, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
-import { View, Image, ScrollView, Modal, TouchableOpacity, Alert, RefreshControl } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, SegmentedButtons } from 'react-native-paper';
+import { View, ScrollView,RefreshControl } from "react-native";
+import { useTheme, Text, IconButton, SegmentedButtons } from 'react-native-paper';
 
 import { Container, Row, Col } from 'react-native-flex-grid';
 
 import { ParamListBase, useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Job, JobsMatch } from "../../types";
+import { JobsMatch } from "../../types";
 import { JobCard } from "./components";
 
 import { Menu, GreetingsText } from "../../components";
@@ -33,13 +33,10 @@ const Jobs: FC = () => {
     const [bookmarkedJobs, setBookmarkedJobs] = useState<JobsMatch[]>([]);
     const [appliedJobs, setAppliedJobs] = useState<JobsMatch[]>([]);
 
-
     useEffect(() => {
         (async () => {
-
             if(!isFocused) return;
             await fetchData();
-
         })()
     }, [isFocused]);
 
@@ -68,7 +65,37 @@ const Jobs: FC = () => {
         }
     }
 
-    console.log('section', section);
+    function renderBookmarkedJobs() {
+        if (bookmarkedJobs && bookmarkedJobs.length !== 0) {
+            return bookmarkedJobs.map((job_match: JobsMatch, index: number) => (
+                <JobCard key={index} job_match={job_match} fetchData={fetchData} navigation={navigation} />
+            ))
+        } else {
+            return (
+                <Row>
+                    <Col xs="12">
+                        <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No bookmarked jobs</Text>
+                    </Col>
+                </Row>
+            )
+        }
+    }
+
+    function renderAppliedJobs() {
+        if (appliedJobs && appliedJobs.length !== 0) {
+            return appliedJobs.map((job_match: JobsMatch, index: number) => (
+                <JobCard key={index} job_match={job_match} fetchData={fetchData} navigation={navigation} />
+            ))
+        } else {
+            return (
+                <Row>
+                    <Col xs="12">
+                        <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No Applied jobs</Text>
+                    </Col>
+                </Row>
+            )
+        }
+    }
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
@@ -98,17 +125,17 @@ const Jobs: FC = () => {
                         onValueChange={setSection}
                         buttons={[
                             {
-                                value: 'bookmarked',
-                                label: 'Bookmarked',
-                                checkedColor: theme.colors.primary,
-                                uncheckedColor: theme.colors.primary,
-                            },
-                            {
                                 value: 'applications',
                                 label: 'Applications',
                                 checkedColor: theme.colors.primary,
                                 uncheckedColor: theme.colors.primary,
 
+                            },
+                            {
+                                value: 'bookmarked',
+                                label: 'Bookmarked',
+                                checkedColor: theme.colors.primary,
+                                uncheckedColor: theme.colors.primary,
                             },
                         ]}
                     />
@@ -124,31 +151,11 @@ const Jobs: FC = () => {
                     }
                 >   
                     {section === 'bookmarked' &&
-
-                        bookmarkedJobs && bookmarkedJobs.length !== 0 ?
-                        bookmarkedJobs.map((job_match: JobsMatch, index: number) => (
-                            <JobCard key={index} job_match={job_match} fetchData={fetchData} />
-                        ))
-                    :
-                        <Row>
-                            <Col xs="12">
-                                <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No bookmarked jobs</Text>
-                            </Col>
-                        </Row>
-                        
+                        renderBookmarkedJobs()
                     }
 
                     {section === 'applications' &&
-                        appliedJobs && appliedJobs.length !== 0 ?
-                        appliedJobs.map((job_match: JobsMatch, index: number) => (
-                            <JobCard key={index} job_match={job_match} fetchData={fetchData} />
-                        ))
-                        :
-                        <Row>
-                            <Col xs="12">
-                                <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No Applied jobs</Text>
-                            </Col>
-                        </Row>
+                        renderAppliedJobs()
                     }
 
                 </ScrollView>

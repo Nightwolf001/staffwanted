@@ -49,11 +49,11 @@ const theme = {
   myOwnProperty: true,
   ...DefaultTheme.colors,
   colors: {
-    primary: "rgb(36, 95, 166)",
+    primary: "rgb(0, 74, 143)",
     onPrimary: "rgb(255, 255, 255)",
     primaryContainer: "rgb(213, 227, 255)",
     onPrimaryContainer: "rgb(0, 27, 60)",
-    secondary: "rgb(0, 101, 140)",
+    secondary: "rgb(150, 197, 226)",
     onSecondary: "rgb(255, 255, 255)",
     secondaryContainer: "rgb(197, 231, 255)",
     onSecondaryContainer: "rgb(0, 30, 45)",

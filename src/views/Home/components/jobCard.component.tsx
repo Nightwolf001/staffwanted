@@ -8,7 +8,7 @@ import { useTheme, Text, IconButton, Surface } from 'react-native-paper';
 import { Job } from "../../../types";
 import { styles } from "../../../theme/styles";
 
-import { handleBookmarkJob } from "../../../actions/jobs.actions";
+import { handleJobBookmark } from "../../../actions/jobs.actions";
 
 type JobCardProps = {
     job: Job,
@@ -52,7 +52,7 @@ const JobCard = ({ job, navigation, fetchData }: JobCardProps) => {
             bookmark = true;
         }
 
-        const data = await handleBookmarkJob(job_id, bookmark);
+        const data = await handleJobBookmark(job_id, bookmark);
         if (data) {
             fetchData();
             console.log('handleBookmark data', data);
@@ -63,7 +63,6 @@ const JobCard = ({ job, navigation, fetchData }: JobCardProps) => {
     
     return (
         <TouchableOpacity style={[styles.job_card]} onPress={() => navigation.navigate({ name: 'Job', params: { job }} )}>
-           
             <Row>
                 <Col xs="3">
                     <Image  style={{ borderRadius: 15, width: 80, height: 80 }} source={{ uri: job_avatar_uri }} />
@@ -83,15 +82,7 @@ const JobCard = ({ job, navigation, fetchData }: JobCardProps) => {
                     />
                     <Text style={[{ alignSelf: 'flex-end', marginBottom: 0, color: theme.colors.primary, fontWeight: 'bold', textAlign: 'right' }]} variant="labelLarge">$ {salary} p/h</Text>
                 </Col>
-                {/* <Col xs="12" style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <View style={{ justifyContent: 'center', flexDirection: 'row', paddingTop: 10, flexWrap: 'wrap' }}>
-                        {properties.length !== 0 && properties.slice(0, Math.min(properties.length, 3)).sort(() => Math.random() - 0.5).map((item: string, index: number) => (
-                            <View key={index} style={[styles.job_pill, { backgroundColor: theme.colors.primary, marginBottom: 10 }]}><Text style={{ color: theme.colors.onPrimary }}>{item}</Text></View>
-                        ))}
-                    </View>
-                </Col> */}
             </Row>
-           
         </TouchableOpacity>
         
     );

@@ -42,7 +42,7 @@ export const fetchPreferredHours = async () => {
     }
 }
 
-export const handleBookmarkJob = async (job_id: number, bookmarked: boolean) => {
+export const handleJobBookmark = async (job_id: number, bookmarked: boolean) => {
     try {
         
         const { data } = await axiosInstance.post(
@@ -60,9 +60,37 @@ export const handleBookmarkJob = async (job_id: number, bookmarked: boolean) => 
     }
 }
 
+export const handleJobApplication = async (job_id: number, applied: boolean, application_status: string) => {
+    try {
+
+        const { data } = await axiosInstance.post(
+            `${API_BASE}/employee-job-match/upsert`, 
+            {
+                job_id: job_id,
+                applied: applied,
+                application_status: application_status
+            }
+        );
+
+        return data;
+    } catch (ex) {
+        console.log('handleJobApplication ex', JSON.stringify(ex));
+    }
+}
+
 export const fetchJobMatches = async () => {
     try {
         const { data } = await axiosInstance.get(`${API_BASE}/employee-job-matches`);
+        return data;
+    } catch (ex) {
+        console.log('fetchJobRoles ex', JSON.stringify(ex));
+    }
+}
+
+export const fetchJobStatus = async (job_id : number) => {
+    try {
+        const { data } = await axiosInstance.get(`${API_BASE}/employee-job-matches/application-status/${job_id}`);
+        console.log('fetchJobStatus data', data);
         return data;
     } catch (ex) {
         console.log('fetchJobRoles ex', JSON.stringify(ex));

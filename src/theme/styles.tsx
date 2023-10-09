@@ -280,7 +280,6 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
     },
     job_pill: {
-        backgroundColor: light_blue,
         borderRadius: 15,
         padding: 5,
         paddingLeft: 10,
