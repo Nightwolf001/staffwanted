@@ -17,6 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Job, JobsList } from "../../types";
 import { JobCard } from "./components";
 
+import { METRIC, MAPS_API_KEY } from "@env";
 import { fetchAllJobs, fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 import { Menu, GreetingsText } from "../../components";
 
@@ -32,6 +33,7 @@ const Home: FC = () => {
 
     const [menu_visible, setMenuVisible] = useState(false);
     const [filter_menu_visible, setFilterMenuVisible] = useState(false);
+    const [location_search, setLocationSearch] = useState(false);
 
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [jobsList, setJobsList] = useState<JobsList>();
@@ -48,7 +50,9 @@ const Home: FC = () => {
         preferred_hours: user.preferred_hours,
         salary: 10,
         coord: user.coord,
-        distance: 15
+        location: user.location,
+        distance: 15,
+        metric: METRIC
     });
 
     useEffect(() => {
@@ -169,7 +173,7 @@ const Home: FC = () => {
                     }
                 >
                     {jobsList && jobsList.data.length !== 0 && jobsList?.data.map((item, index) => (
-                        <JobCard key={index} job={item as Job} fetchData={fetchData} navigation={navigation} />
+                        <JobCard key={index} job={item as Job} fetchData={fetchData} filterd_coord={filters.coord} navigation={navigation} />
                     ))}
 
                 </ScrollView>
@@ -206,8 +210,7 @@ const Home: FC = () => {
                             <Container fluid>
                                 <Row style={{ justifyContent: 'center' }}>
                                     <Col style={{ marginTop: 15 }} xs="12">
-                                        {/* // change this to miles  */}
-                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance}KM radius</Text>
+                                        <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance} {METRIC} radius</Text>
                                         <Slider
                                             thumbTintColor={theme.colors.primary}
                                             maximumTrackTintColor={theme.colors.primary}
@@ -217,6 +220,83 @@ const Home: FC = () => {
                                             value={filters.distance}
                                             onValueChange={value => setFilters({ ...filters, distance: value })}
                                         />
+                                    </Col>
+                                    <Col style={{ marginBottom: 15 }} xs="12">
+                                        <>
+                                            <TextInput
+                                                label={'Location'}
+                                                mode='outlined'
+                                                multiline={true}
+                                                outlineColor={theme.colors.primary}
+                                                outlineStyle={{ borderRadius: 15 }}
+                                                value={filters.location}
+                                                onFocus={() => setLocationSearch(true)}
+                                                onBlur={() => setLocationSearch(false)}
+                                                onTouchStart={() => setLocationSearch(true)}
+                                                onTouchEnd={() => setLocationSearch(false)}
+                                                editable={false}
+                                                right={<TextInput.Icon icon="map-marker-circle" onPress={() => setLocationSearch(true)} />}
+                                            />
+                                            <Modal
+                                                style={[styles.wrapper]}
+                                                animationType="slide"
+                                                transparent={false}
+                                                visible={location_search}
+                                                onRequestClose={() => { setLocationSearch(false) }}
+                                                presentationStyle={"pageSheet"}
+                                            >
+                                                <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary }}>
+                                                    <View style={{ flex: .4, width: '100%', backgroundColor: theme.colors.primary, justifyContent: 'center' }}>
+                                                        <Container fluid>
+                                                            <Row>
+                                                                <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="10">
+                                                                    <Text style={[styles.text_white_heading]} variant="headlineSmall">Search your location.</Text>
+                                                                </Col>
+                                                                <Col style={{ alignItems: 'flex-end', justifyContent: 'center' }} xs="2">
+                                                                    <IconButton
+                                                                        icon="close"
+                                                                        iconColor={theme.colors.onPrimary}
+                                                                        size={30}
+                                                                        onPress={() => setLocationSearch(false)}
+                                                                    />
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </View>
+
+                                                    <View style={[{ borderTopEndRadius: 35, borderTopStartRadius: 35, padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
+                                                        <ScrollView>
+                                                            <GooglePlacesAutocomplete
+                                                                styles={{
+                                                                    textInput: {
+                                                                        borderRadius: 15,
+                                                                        borderWidth: 1,
+                                                                        borderColor: theme.colors.primary,
+                                                                        color: '#5d5d5d',
+                                                                        fontSize: 16,
+                                                                    },
+                                                                    predefinedPlacesDescription: {
+                                                                        color: '#1faadb',
+                                                                    },
+                                                                }}
+                                                                placeholder='Search for your location...'
+                                                                fetchDetails={true}
+                                                                onPress={(data, details = null) => {
+                                                                    console.log(data, details);
+                                                                    setFilters({ ...filters, location: data.description, coord: { lat: `${details?.geometry.location.lat}`, lng: `${details?.geometry.location.lng}` } })
+                                                                    setLocationSearch(false);
+                                                                }}
+                                                                query={{
+                                                                    key: MAPS_API_KEY,
+                                                                    language: 'en',
+                                                                    types: 'geocode'
+                                                                }}
+                                                            />
+                                                        </ScrollView>
+                                                    </View>
+                                                </View>
+                                            </Modal>
+                                        </>
                                     </Col>
                                     {all_job_roles.length !== 0 &&
                                         <Col style={{ marginBottom: 5 }} xs="12">

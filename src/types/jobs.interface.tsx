@@ -35,7 +35,7 @@ export interface JobAttributes {
     description: string;
     location: string;
     salary: string;
-    coords: any;
+    coord: any;
     place_id: string;
     job_avatar_uri: string;
     job_roles: JobRolesList;

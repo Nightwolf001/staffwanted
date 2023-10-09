@@ -18,8 +18,9 @@ import Inbox from "./views/Inbox";
 import Jobs from "./views/Jobs";
 import Job from "./views/Job";
 import Profile from "./views/Profile";
+import Employer from "./views/Employer";
 
-import { Job as JobType, RootStackParamList } from './types';
+import { Employer as EmployerType, Job as JobType, RootStackParamList } from './types';
 
 const HomeStack = createNativeStackNavigator();
 const HomeStackScreens = () => (
@@ -190,9 +191,23 @@ const AppContainer = () => {
                 <Stack.Screen
                     name="Job"
                     component={Job}
-                    initialParams={{ job: {} as JobType }}
+                    initialParams={{} as JobType }
                     options={({ route }) => ({
-                        title: route.params.job.attributes.employer.data.attributes.company_name,
+                        title: route.params.attributes.employer.data.attributes.company_name,
+                        headerBackButtonMenuEnabled: true,
+                        headerBackTitleVisible: false,
+                        headerTintColor: '#fff',
+                        headerStyle: {
+                            backgroundColor: '#004A8F',
+                        },
+                    })}
+                />
+                <Stack.Screen
+                    name="Employer"
+                    component={Employer}
+                    initialParams={{} as EmployerType}
+                    options={({ route }) => ({
+                        title: route.params.attributes.company_name,
                         headerBackButtonMenuEnabled: true,
                         headerBackTitleVisible: false,
                         headerTintColor: '#fff',

@@ -22,6 +22,7 @@
     "@testing-library/react-native": "^12.2.2",
     "@types/react-native-video": "^5.0.15",
     "axios": "^1.5.0",
+    "geolib": "^3.3.4",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "react": "18.2.0",

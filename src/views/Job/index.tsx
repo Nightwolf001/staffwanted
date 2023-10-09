@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
-import { View, Image, ScrollView, Animated, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { useTheme, Button, Text, IconButton } from 'react-native-paper';
+import { View, Image, ScrollView, Animated, TouchableOpacity, Alert, Dimensions } from "react-native";
 
+import MapView, { Marker } from 'react-native-maps';
 import { TabView, SceneMap } from 'react-native-tab-view';
+import { getPreciseDistance, convertDistance } from 'geolib';
 import { Container, Row, Col } from 'react-native-flex-grid';
 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ParamListBase, useNavigation, RouteProp, useIsFocused } from '@react-navigation/native';
 
+import { METRIC } from "@env";
 import { styles } from "../../theme/styles";
 import { fetchJobStatus, handleJobApplication, handleJobBookmark } from "../../actions/jobs.actions";
 import { JobAttributes, RootStackParamList } from '../../types';
@@ -17,21 +22,14 @@ import { JobAttributes, RootStackParamList } from '../../types';
 type JobScreenRouteProp = RouteProp<RootStackParamList, 'Job'>;
 type Props = { route: JobScreenRouteProp };
 
-
-const jobLocation = () => (
-    <View style={{ flex: 1, backgroundColor: '#673ab7' }} />
-);
-
 const Job = ({ route }: Props) => {
 
-    const { job } = route.params;
-    const { id, attributes } = job;
-
-    // add distance away from job
-    const { title, description, job_avatar_uri, employer, salary, location, preferred_hours, job_roles }: JobAttributes = attributes;
+    const { id, attributes } = route.params;
+    const { title, description, job_avatar_uri, employer, salary, location, preferred_hours, job_roles, coord }: JobAttributes = attributes;
 
     const theme = useTheme();
     const isFocused = useIsFocused();
+    const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const deviceWidth = Dimensions.get("window").width;
@@ -47,11 +45,13 @@ const Job = ({ route }: Props) => {
     const [applied, setApplied] = useState<boolean>(false);
     const [bookmarked, setBookmarked] = useState<boolean>(false);
     const [application_status, setApplicationStatus] = useState<string>('');
-    
+    const [distance_from_saved_address, setDistanceFromSavedLocation] = useState<number>(0);
+
     useEffect(() => {
         (async () => {
             if(!isFocused) return;
 
+            calculatePreciseDistance();
             let job_status = await fetchJobStatus(id);
             console.log('job_status', job_status); 
             if(job_status.data.id) {
@@ -81,16 +81,38 @@ const Job = ({ route }: Props) => {
 
     const renderScene = SceneMap({
         first: () => (
+
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Text variant="bodyMedium">{description}</Text>
             </ScrollView>
-            
         ),
-        second: jobLocation,
+        second: () => (
+
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            {
+                coord.lat && (
+                    <MapView
+                        style={{ ...styles.absoluteFillObject }}
+                        initialRegion={{
+                            latitude: coord.lat,
+                            longitude: coord.lng,
+                            latitudeDelta: 0.0025,
+                            longitudeDelta: 0.0025,
+                        }}
+                    >
+                        {Markers}
+                    </MapView>
+
+                )
+            }
+            </ScrollView>
+
+        ),
         third: () => (
+
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <Text variant="bodyMedium">{employer.data.attributes.company_description}</Text>
-                <Button style={{ width: '100%', marginTop: 30 }} mode="outlined">View Company Profile</Button>
+                <Button onPress={() => navigation.navigate({ name: 'Employer', params: employer.data  })} style={{ width: '100%', marginTop: 30 }} mode="outlined">View Company Profile</Button>
             </ScrollView>
 
         ),
@@ -124,33 +146,102 @@ const Job = ({ route }: Props) => {
         );
     };
 
-    const apply = async (id : number, applied: boolean) => {
-        let application_status = 'applied';
-        let application = await handleJobApplication(id, applied, application_status);
-        console.log('application', application);
+    const calculatePreciseDistance = () => {
+        var pdis = getPreciseDistance(
+            { latitude: user.coord.lat, longitude: user.coord.lng },
+            { latitude: coord.lat, longitude: coord.lng },
+        );
 
-        if(application.data.attributes.updated) {
-            setApplied(applied);
+        let distance = convertDistance(pdis, METRIC);
+        setDistanceFromSavedLocation(parseFloat(distance.toFixed(2)));
+    };
+
+    const Markers = useMemo(() =>  {
+        return (
+            <Marker
+                key={`${employer.data.attributes.company_name}`}
+                tracksViewChanges={false}
+                pinColor={theme.colors.primary}
+                coordinate={{
+                    latitude: parseFloat(coord.lat),
+                    longitude: parseFloat(coord.lng),
+                }}
+                title={employer.data.attributes.company_name}
+            >
+                <View>
+                    <Image style={[styles.icon, { tintColor: theme.colors.primary }]} resizeMode='contain' source={require(`../../assets/icons/location.png`)} />
+                </View>
+            </Marker>
+        );
+    }, [coord]);
+
+    const apply = async (id : number, applied: boolean) => {
+
+        if (applied) {
+            let application = await handleJobApplication(id, applied, "pending");
+
+            if (application.data.attributes.updated) {
+                setApplied(applied);
+                Alert.alert(
+                    "Application sent",
+                    "Your application has been sent to the employer",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => navigation.navigate('TabNavigation', { screen: 'Jobs' }),
+                            style: "cancel"
+                        }
+                    ]
+                );
+            }
+            
+        } else {
+
             Alert.alert(
-                "Application sent",
-                "Your application has been sent to the employer",
+                "Cancel Application",
+                "Are you sure you want to cancel your application?",
                 [
                     {
-                        text: "OK",
-                        onPress: () => navigation.navigate('TabNavigation', { screen: 'Jobs' }),
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
                         style: "cancel"
+                    },
+                    {
+                        text: "Yes", onPress: async () => {
+                            let application = await handleJobApplication(id, applied, "none");
+
+                            if (application.data.attributes.updated) {
+                                setApplied(applied);
+                                Alert.alert(
+                                    "Application cancelled",
+                                    "Your application has been cancelled",
+                                    [
+                                        {
+                                            text: "OK",
+                                            onPress: () => navigation.navigate('TabNavigation', { screen: 'Jobs' }),
+                                            style: "cancel"
+                                        }
+                                    ]
+                                );
+                            }
+                        }
                     }
                 ]
             );
+
         }
+
     }
 
     const cancel = async (id: number) => {
-
     }
 
     const bookmark = async (id: number, bookmark : boolean) => {
-
+        const data = await handleJobBookmark(id, bookmark);
+        if (data) {
+            setBookmarked(bookmark);
+            console.log('handleBookmark data', data);
+        }
     }
 
     return (
@@ -166,6 +257,7 @@ const Job = ({ route }: Props) => {
                                 {/* <Text style={{ fontWeight: 'bold', textAlign: 'center' }} variant="labelLarge" >{employer.data.attributes.company_name}</Text> */}
                                 <Text style={{ fontWeight: 'bold', textAlign: 'center' }} variant="labelLarge" >{title}</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodyMedium" >{location}</Text>
+                                <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodySmall" >{distance_from_saved_address} {METRIC} away</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center', paddingTop: 5 }} variant="bodySmall" >${salary} p/h</Text>
                             </Col>
                             <Col xs="12" style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -178,8 +270,8 @@ const Job = ({ route }: Props) => {
                             {applied && application_status.length !== 0 &&
                                 <Col xs="12" style={{ justifyContent: 'center', alignItems: 'center' }}>
                                     <View style={{ justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
-                                        <View style={[styles.job_pill, { backgroundColor: theme.colors.primary, marginBottom: 10 }]}><Text style={{ color: theme.colors.onPrimary, fontSize: 10 }}>Applied</Text></View>
-                                        <View style={[styles.job_pill, { backgroundColor: theme.colors.primary, marginBottom: 10 }]}><Text style={{ color: theme.colors.onPrimary, fontSize: 10 }}>{application_status}</Text></View>
+                                        <View style={[styles.job_pill, { backgroundColor: theme.colors.primary, marginBottom: 10 }]}><Text style={{ color: theme.colors.onPrimary, fontSize: 10, textTransform: 'capitalize' }}>Applied</Text></View>
+                                        <View style={[styles.job_pill, { backgroundColor: theme.colors.primary, marginBottom: 10, }]}><Text style={{ color: theme.colors.onPrimary, fontSize: 10, textTransform: 'capitalize' }}>{application_status}</Text></View>
                                     </View>
                                 </Col>
                             }
@@ -194,7 +286,7 @@ const Job = ({ route }: Props) => {
                         pagerStyle={{ width: deviceWidth - 40, alignSelf: 'center', marginTop: 20, marginBottom: 20, borderRadius: 15, backgroundColor: theme.colors.onPrimary }}
                     />
                     {applied  &&
-                        <Button onPress={() => { cancel(id) }} style={{ width: '90%', marginBottom: 30 }} mode="contained">Cancel Application</Button>
+                        <Button onPress={() => { apply(id, !applied) }} style={{ width: '90%', marginBottom: 30 }} mode="contained">Cancel Application</Button>
                     }
 
                     {!applied &&
@@ -216,7 +308,6 @@ const Job = ({ route }: Props) => {
                             </Row>
                         </Container>
                     }
-                    
                 </View>
             </View>
         </View>
