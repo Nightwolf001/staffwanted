@@ -49,7 +49,7 @@ const Jobs: FC = () => {
     const fetchData = async () => {
         setBookmarkedJobs([]);
         setAppliedJobs([]);
-        let { data } = await fetchJobMatches();
+        let { data } = await fetchJobMatches(user.id);
 
         for (let i = 0; i < data.length; i++) {
             const job_match = data[i];

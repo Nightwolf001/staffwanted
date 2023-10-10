@@ -162,7 +162,7 @@ const Profile: FC = () => {
                             <Avatar.Image size={80}
                                 style={{backgroundColor: theme.colors.onPrimary }}
                                 source={{
-                                    uri: `http://localhost:1337/${user.avatar_url}`
+                                    uri: `https://staffwanted-api.madebycode.co.za/${user.avatar_url}`
                                 }}
                             />
                         </Col>

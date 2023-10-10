@@ -44,6 +44,7 @@ const Home: FC = () => {
     const [experiences, setExperiences] = useState<any>([]);
 
     const [filters, setFilters] = useState<any>({
+        id: user.id,
         search: "",
         job_roles: user.job_roles,
         experience: user.experience,
@@ -99,11 +100,16 @@ const Home: FC = () => {
         setPreferredHours(preferredHours?.data);
 
         if (user.job_roles && user.experience && user.preferred_hours ) {
-            const jobs = await fetchAllJobs(filters);
-            setJobsList(jobs);    
+            await fetchAllJobData()
         } else {
             await fetchData();
         }
+    }
+
+    const fetchAllJobData = async () => {
+        console.log('fetchAllJobData filters', filters);
+        const jobs = await fetchAllJobs(filters);
+        setJobsList(jobs); 
     }
 
     const handelFilter = async () => {

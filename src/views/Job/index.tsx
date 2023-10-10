@@ -52,7 +52,7 @@ const Job = ({ route }: Props) => {
             if(!isFocused) return;
 
             calculatePreciseDistance();
-            let job_status = await fetchJobStatus(id);
+            let job_status = await fetchJobStatus(user.id, id);
             console.log('job_status', job_status); 
             if(job_status.data.id) {
                 setApplied(job_status.data.attributes.applied);
@@ -178,7 +178,7 @@ const Job = ({ route }: Props) => {
     const apply = async (id : number, applied: boolean) => {
 
         if (applied) {
-            let application = await handleJobApplication(id, applied, "pending");
+            let application = await handleJobApplication(user.id, id, applied, "pending");
 
             if (application.data.attributes.updated) {
                 setApplied(applied);
@@ -212,7 +212,7 @@ const Job = ({ route }: Props) => {
                     },
                     {
                         text: "Yes", onPress: async () => {
-                            let application = await handleJobApplication(id, applied, "none");
+                            let application = await handleJobApplication(user.id, id, applied, "none");
 
                             if (application.data.attributes.updated) {
                                 setApplied(applied);
@@ -238,7 +238,7 @@ const Job = ({ route }: Props) => {
     }
 
     const bookmark = async (id: number, bookmark : boolean) => {
-        const data = await handleJobBookmark(id, bookmark);
+        const data = await handleJobBookmark(user.id, id, bookmark);
         if (data) {
             setBookmarked(bookmark);
             console.log('handleBookmark data', data);

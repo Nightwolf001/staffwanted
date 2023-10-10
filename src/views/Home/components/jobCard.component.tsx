@@ -54,7 +54,7 @@ const JobCard = ({ job, navigation, filterd_coord, fetchData }: JobCardProps) =>
             bookmark = true;
         }
 
-        const data = await handleJobBookmark(job_id, bookmark);
+        const data = await handleJobBookmark(user.id, job_id, bookmark);
         if (data) {
             fetchData();
             console.log('handleBookmark data', data);
