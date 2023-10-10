@@ -207,7 +207,7 @@ const AppContainer = () => {
                     component={Employer}
                     initialParams={{} as EmployerType}
                     options={({ route }) => ({
-                        title: route.params.attributes.company_name,
+                        title: "Company Profile",
                         headerBackButtonMenuEnabled: true,
                         headerBackTitleVisible: false,
                         headerTintColor: '#fff',

@@ -1,3 +1,5 @@
+import { EmployerItem } from "./employer.interface";
+import { Coord } from "./locations.interface";
 export interface JobsList {
     data: Job[]
     meta: any
@@ -35,7 +37,7 @@ export interface JobAttributes {
     description: string;
     location: string;
     salary: string;
-    coord: any;
+    coord: Coord;
     place_id: string;
     job_avatar_uri: string;
     job_roles: JobRolesList;
@@ -88,25 +90,4 @@ export interface Experience {
 
 export interface ExperiencesAttributes {
     name: string;
-}
-
-export interface EmployerItem {
-    data: Employer;
-    meta: any;
-}
-
-export interface Employer {
-    id: number;
-    attributes: EmployerAttributes;
-}
-
-export interface EmployerAttributes {
-    company_name: string;
-    company_email: string;
-    company_number: string;
-    company_location: string;
-    coords: any;
-    place_id: string;
-    company_avatar_url: string;
-    company_description: string;
 }

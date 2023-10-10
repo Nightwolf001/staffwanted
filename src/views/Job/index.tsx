@@ -79,6 +79,25 @@ const Job = ({ route }: Props) => {
         })()
     }, [isFocused]);
 
+    const Markers = useMemo(() => {
+        return (
+            <Marker
+                key={`${employer.data.attributes.company_name}`}
+                tracksViewChanges={false}
+                pinColor={theme.colors.primary}
+                coordinate={{
+                    latitude: parseFloat(coord.lat),
+                    longitude: parseFloat(coord.lng),
+                }}
+                title={employer.data.attributes.company_name}
+            >
+                <View>
+                    <Image style={[styles.icon, { tintColor: theme.colors.primary }]} resizeMode='contain' source={require(`../../assets/icons/location.png`)} />
+                </View>
+            </Marker>
+        );
+    }, [coord]);
+
     const renderScene = SceneMap({
         first: () => (
 
@@ -94,8 +113,8 @@ const Job = ({ route }: Props) => {
                     <MapView
                         style={{ ...styles.absoluteFillObject }}
                         initialRegion={{
-                            latitude: coord.lat,
-                            longitude: coord.lng,
+                            latitude: parseFloat(coord.lat),
+                            longitude: parseFloat(coord.lng),
                             latitudeDelta: 0.0025,
                             longitudeDelta: 0.0025,
                         }}
@@ -156,25 +175,6 @@ const Job = ({ route }: Props) => {
         setDistanceFromSavedLocation(parseFloat(distance.toFixed(2)));
     };
 
-    const Markers = useMemo(() =>  {
-        return (
-            <Marker
-                key={`${employer.data.attributes.company_name}`}
-                tracksViewChanges={false}
-                pinColor={theme.colors.primary}
-                coordinate={{
-                    latitude: parseFloat(coord.lat),
-                    longitude: parseFloat(coord.lng),
-                }}
-                title={employer.data.attributes.company_name}
-            >
-                <View>
-                    <Image style={[styles.icon, { tintColor: theme.colors.primary }]} resizeMode='contain' source={require(`../../assets/icons/location.png`)} />
-                </View>
-            </Marker>
-        );
-    }, [coord]);
-
     const apply = async (id : number, applied: boolean) => {
 
         if (applied) {
@@ -196,6 +196,10 @@ const Job = ({ route }: Props) => {
             }
             
         } else {
+
+            if (application_status === 'pending') {
+
+            }
 
             Alert.alert(
                 "Cancel Application",
@@ -233,9 +237,6 @@ const Job = ({ route }: Props) => {
 
     }
 
-    const cancel = async (id: number) => {
-    }
-
     const bookmark = async (id: number, bookmark : boolean) => {
         const data = await handleJobBookmark(id, bookmark);
         if (data) {
@@ -254,7 +255,6 @@ const Job = ({ route }: Props) => {
                                 <Image source={{ uri: job_avatar_uri }} style={styles.job_image} />
                             </Col>
                             <Col xs="12">
-                                {/* <Text style={{ fontWeight: 'bold', textAlign: 'center' }} variant="labelLarge" >{employer.data.attributes.company_name}</Text> */}
                                 <Text style={{ fontWeight: 'bold', textAlign: 'center' }} variant="labelLarge" >{title}</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodyMedium" >{location}</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodySmall" >{distance_from_saved_address} {METRIC} away</Text>
