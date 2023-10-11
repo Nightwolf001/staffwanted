@@ -18,10 +18,10 @@ type JobCardProps = {
     job: Job,
     navigation?: any,
     filterd_coord?: any,
-    fetchData: () => void;
+    fetchAllJobData: () => void;
 }
 
-const JobCard = ({ job, navigation, filterd_coord, fetchData }: JobCardProps) => {
+const JobCard = ({ job, navigation, filterd_coord, fetchAllJobData }: JobCardProps) => {
 
     if(!job) return
     const { attributes } = job;
@@ -56,7 +56,7 @@ const JobCard = ({ job, navigation, filterd_coord, fetchData }: JobCardProps) =>
 
         const data = await handleJobBookmark(user.id, job_id, bookmark);
         if (data) {
-            fetchData();
+            fetchAllJobData();
             console.log('handleBookmark data', data);
         }
     }

@@ -5,26 +5,31 @@ import { RootState } from '../../redux/store';
 import moment from 'moment';
 import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
+import ActionSheet from 'react-native-actions-sheet';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
-import { View, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
-import { createProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
+import { createProfile, fetchGenders, uploadFile, uploadAvatarFile } from "../../actions/account.actions";
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 
 import { MAPS_API_KEY } from '@env';
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
+import { act } from "@testing-library/react-native";
 
 const CreateProfile: FC = () => {
 
     let cameraRef = useRef<any>();
+    const actionSheetRef = useRef<ActionSheetRef>(null);
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -147,12 +152,70 @@ const CreateProfile: FC = () => {
 
             let resp = await uploadFile(file_name, file_type, image_uri);
             let avatar_id = resp[0].id;
+            let avatar_url = resp[0].url;
             setProfileImage(uri);
-            setUserData({ ...user, avatar_id: avatar_id });
+
+            setUserData({ ...user, avatar_id: avatar_id, avatar_url: avatar_url });
             setModalVisible(false);
+            actionSheetRef.current?.hide();
 
         }
     };
+
+    const handleActionSheet = () => {
+        actionSheetRef.current?.show();
+    }
+
+    const launchImgLibrary = async () => {
+
+        const result = await launchImageLibrary({
+            mediaType: 'photo',
+            includeBase64: true,
+            presentationStyle: 'pageSheet'
+        });
+
+        if (result.didCancel) {
+            actionSheetRef.current?.hide();
+        } else if (result.errorCode) {
+            Alert.alert(
+                "Something went wrong!",
+                result.errorMessage,
+                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+            );
+            console.log('ImagePicker Error: ', result.errorMessage);
+        } else {
+
+            if (result?.assets?.length !== undefined && result.assets.length !== 0) {
+                setSubmitting(true);
+                for (let i = 0; i < result.assets.length; i++) {
+
+                    const asset = result.assets[i];
+                    setProfileImage(asset.uri ?? '');
+
+                    const file_name = asset.fileName ?? '';
+                    const file_type = asset.type ?? '';
+                    const file_uri = asset.uri ?? '';
+                    const file_data = await uploadAvatarFile(file_name, file_type, file_uri);
+
+
+                    for (let f = 0; f < file_data.length; f++) {
+
+                        const file = file_data[f];
+                        setUserData({ ...user, avatar_id: file.id, avatar_url: file.url });
+                
+                            Alert.alert(
+                                "Success",
+                                "Profile picture updated successfully.",
+                                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+                            );
+
+                        }
+
+                    }
+                }
+            }
+    }
+    
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
@@ -170,7 +233,7 @@ const CreateProfile: FC = () => {
                                     icon={profile_image.length === 0 ? "account-plus" : "account-check"}
                                     iconColor={theme.colors.onPrimary}
                                     size={40}
-                                    onPress={() => setModalVisible(true)}
+                                    onPress={() => handleActionSheet()}
                                 />
                             </Col>
                             <Col style={{  justifyContent: 'center', alignItems: 'flex-start', }} xs="8">
@@ -505,6 +568,28 @@ const CreateProfile: FC = () => {
                     />
                 </RNCamera>
             </Modal>
+
+            <ActionSheet ref={actionSheetRef}>
+                <Container fluid>
+                    <Row style={{ padding: 16 }}>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => takePicture()}>
+                                Take new picture
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => launchImgLibrary()}>
+                                Choose from camera roll
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 30 }} mode="outlined" onPress={() => actionSheetRef.current?.hide()}>
+                                Cancel
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </ActionSheet>
 
         </View>
     );

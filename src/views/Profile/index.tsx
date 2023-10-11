@@ -3,15 +3,18 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { RootState } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { View, ScrollView, Modal, Alert } from "react-native";
+import { View, ScrollView, Modal, Alert, TouchableOpacity } from "react-native";
 import { useTheme, TextInput, Button, Text, IconButton, Avatar, SegmentedButtons, Switch } from 'react-native-paper';
 
 import moment from 'moment';
 import Video from 'react-native-video';
 import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
+import ActionSheet from "react-native-actions-sheet";
+import { ActionSheetRef } from "react-native-actions-sheet";
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import { ParamListBase, useNavigation, useIsFocused } from '@react-navigation/native';
@@ -22,7 +25,7 @@ import { Menu, GreetingsText } from "../../components";
 import { User } from '../../types';
 import { setUser } from '../../redux/reducers/user.reducer';
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
-import { updateProfile, fetchGenders, uploadFile } from "../../actions/account.actions";
+import { updateProfile, uploadAvatarFile, uploadFile } from "../../actions/account.actions";
 
 import { MAPS_API_KEY } from '@env';
 import { styles } from "../../theme/styles";
@@ -31,6 +34,7 @@ const Profile: FC = () => {
 
     let videoRef = useRef<any>();
     let cameraRef = useRef<any>();
+    const actionSheetRef = useRef<ActionSheetRef>(null);
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -56,6 +60,7 @@ const Profile: FC = () => {
 
     const [section, setSection] = useState('job');
     const [user_data, setUserData] = useState<User>(user);
+    const [user_avatar, setUserAvatar] = useState<string>("");
 
     useEffect(() => {
         (async () => {
@@ -74,6 +79,8 @@ const Profile: FC = () => {
 
             setIsProfileVisible(user_data.hide_profile);
             setIsProfileBoosted(user_data.profile_boosted);
+
+            setUserAvatar(`https://staffwanted-api.madebycode.co.za/${user_data.avatar_url}`)
 
         })()
     }, [isFocused]);
@@ -124,6 +131,7 @@ const Profile: FC = () => {
         const {data} = await updateProfile(user.id, user_data);
         if (data) {
             dispatch(setUser(data.attributes));
+            setUserData(data.attributes);
             setSubmitting(false);
             Alert.alert(
                 "Success",
@@ -135,10 +143,101 @@ const Profile: FC = () => {
         }
     }
 
-    // add dates I camt work on
+    const handleActionSheet = () => {
+        actionSheetRef.current?.show();
+    }
+
+    const launchImgLibrary = async () => {
+        
+        const result = await launchImageLibrary({
+            mediaType: 'photo',
+            includeBase64: true,
+            presentationStyle: 'pageSheet'
+        });
+
+        if (result.didCancel) {
+            actionSheetRef.current?.hide();
+        } else if (result.errorCode) {
+            Alert.alert(
+                "Something went wrong!",
+                result.errorMessage,
+                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+            );
+            console.log('ImagePicker Error: ', result.errorMessage);
+        } else {
+            
+            if (result?.assets?.length !== undefined && result.assets.length !== 0) {
+                setSubmitting(true);
+                for (let i = 0; i < result.assets.length; i++) {
+
+                    const asset = result.assets[i];
+                    setUserAvatar(asset.uri ?? '');
+
+                    const file_name = asset.fileName ?? '';
+                    const file_type = asset.type ?? '';
+                    const file_uri = asset.uri ?? '';
+                    const file_data = await uploadAvatarFile(file_name, file_type, file_uri);
+                    
+
+                    for (let f = 0; f < file_data.length; f++) {
+
+                        const file = file_data[f];
+                        const { data } = await updateProfile(user.id, { avatar_id: file.id, avatar_url: file.url });
+                        if (data) {
+                            
+                            dispatch(setUser(data.attributes));
+                            setUserData(data.attributes);
+                            setSubmitting(false);
+                            Alert.alert(
+                                "Success",
+                                "Profile picture updated successfully.",
+                                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+                            );
+
+                        }
+  
+                    }                    
+                }
+            }
+        }
+    }
+
+    const launchCam = async () => {
+
+        let result = await launchCamera({
+            mediaType: 'photo',
+            includeBase64: true,
+            presentationStyle: 'pageSheet',
+            cameraType: 'front',
+        });
+
+        console.log('launchCam result', result);
+        if (result.didCancel) {
+            actionSheetRef.current?.hide();
+        } else if (result.errorCode) {
+
+            let error_message = result.errorMessage ?? '';
+            if (result.errorCode === 'permission') {
+                error_message = 'Please allow camera permissions in your settings.';
+            }
+            if (result.errorCode === 'camera_unavailable') {
+                error_message = 'Camera is not available on this device.';
+            }
+
+            Alert.alert(
+                "Something went wrong!",
+                error_message,
+                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+            );
+
+        } else {
+
+        }
+    }
+
+    // add dates I cant work on
     // add CV
     // add video
-    // add profile picture
     
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary, width: '100%' }]}>
@@ -159,12 +258,22 @@ const Profile: FC = () => {
                             <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.onPrimary }]} variant="headlineMedium">{user.first_name}</Text>
                         </Col>
                         <Col style={{ justifyContent: 'center', alignItems: 'flex-end'}} xs="4">
-                            <Avatar.Image size={80}
-                                style={{backgroundColor: theme.colors.onPrimary }}
-                                source={{
-                                    uri: `https://staffwanted-api.madebycode.co.za/${user.avatar_url}`
-                                }}
-                            />
+                            <TouchableOpacity style={{position: "relative"}} onPress={() => handleActionSheet()}>
+                                <IconButton
+                                    style={{position: "absolute", bottom: -10, left: -10, backgroundColor: theme.colors.secondary}}
+                                    icon="plus"
+                                    mode="contained"
+                                    iconColor={theme.colors.primary}
+                                    size={15}
+                                    onPress={() => handleActionSheet()}
+                                />
+                                <Avatar.Image size={80}
+                                    style={{backgroundColor: theme.colors.onPrimary, position: "relative", zIndex: -1 }}
+                                    source={{
+                                        uri: user_avatar ? user_avatar : 'https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png'
+                                    }}
+                                />
+                            </TouchableOpacity>
                         </Col>
                     </Row>
                 </Container>
@@ -460,6 +569,27 @@ const Profile: FC = () => {
                     </Container>                
                 </ScrollView>
             </View>
+            <ActionSheet ref={actionSheetRef}>
+                <Container fluid>
+                    <Row style={{padding: 16}}>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => launchCam()}>
+                                Take new picture
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => launchImgLibrary()}>
+                                Choose from camera roll
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 30 }} mode="outlined" onPress={() => actionSheetRef.current?.hide()}>
+                                Cancel
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </ActionSheet>
         </View>
     );
 };

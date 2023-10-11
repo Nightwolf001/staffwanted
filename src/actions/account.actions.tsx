@@ -174,6 +174,48 @@ export const uploadFile = async (name : string, type: string, uri : string) => {
     }
 }
 
+export const uploadAvatarFile = async (name: string, type: string, uri: string) => {
+    console.log('uploadAvatarFile', name);
+    try {
+
+        let formData = new FormData()
+        formData.append("files", {
+            name: name,
+            type: type,
+            uri: uri
+        });
+
+        console.log(formData)
+        const { data } = await axios.post(`${API_BASE}/upload`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        console.log('uploadAvatarFile response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('uploadAvatarFile ex', JSON.stringify(ex));
+    }
+}
+
+export const uploadVideoFile = async (name: string, type: string, uri: string) => {
+    console.log('uploadFile');
+    try {
+
+        let formData = new FormData()
+        formData.append("files", {
+            name: name,
+            type: type,
+            uri: uri
+        });
+
+        console.log(formData)
+        const { data } = await axios.post(`${API_BASE}/upload`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        console.log('uploadFile response', data);
+        return data;
+
+    } catch (ex) {
+        console.log('uploadFile ex', JSON.stringify(ex));
+    }
+}
+
 export const loginAccount = async (coord: Coord, email: string, password: string) => {
     console.log('loginAccount', coord, email);
     try {

@@ -114,8 +114,25 @@ const Home: FC = () => {
 
     const handelFilter = async () => {
         setFilterMenuVisible(false);
-        const jobs = await fetchAllJobs(filters);
-        setJobsList(jobs);
+        fetchAllJobData();
+    }
+
+    const resetFilter = async () => {
+        setFilters({
+            ...filters,
+            search: "",
+            job_roles: user.job_roles,
+            experience: user.experience,
+            preferred_hours: user.preferred_hours,
+            salary: 10,
+            coord: user.coord,
+            location: user.location,
+            distance: 15,
+            metric: METRIC
+        });
+
+        setFilterMenuVisible(false);
+        fetchAllJobData();
     }
 
     return (
@@ -179,7 +196,7 @@ const Home: FC = () => {
                     }
                 >
                     {jobsList && jobsList.data.length !== 0 && jobsList?.data.map((item, index) => (
-                        <JobCard key={index} job={item as Job} fetchData={fetchData} filterd_coord={filters.coord} navigation={navigation} />
+                        <JobCard key={index} job={item as Job} fetchAllJobData={fetchAllJobData} filterd_coord={filters.coord} navigation={navigation} />
                     ))}
 
                 </ScrollView>
@@ -213,7 +230,7 @@ const Home: FC = () => {
 
                     <View style={[{ borderTopEndRadius: 35, borderTopStartRadius: 35, padding: 16, flex: 3, width: '100%', backgroundColor: theme.colors.onPrimary, justifyContent: 'center' }]}>
                         <ScrollView>
-                            <Container fluid>
+                            
                                 <Row style={{ justifyContent: 'center' }}>
                                     <Col style={{ marginTop: 15 }} xs="12">
                                         <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search within a {filters.distance} {METRIC} radius</Text>
@@ -364,30 +381,14 @@ const Home: FC = () => {
                                             />
                                         </Col>
                                     }
-                                    {/* <Col style={{ marginBottom: 15 }} xs="12"> */}
-                                        {/* 
-                                            wage per hour
-                                            salary anualy
-                                            high to low
-                                            low to high
-
-                                        */}
-                                        {/* <Text style={{ textAlign: "center" }} variant={"labelLarge"}>Search by salary {filters.salary}</Text>
-                                        <Slider
-                                            thumbTintColor={theme.colors.primary}
-                                            maximumTrackTintColor={theme.colors.primary}
-                                            minimumTrackTintColor={"#96C4E2"}
-                                            step={5}
-                                            maximumValue={1000}
-                                            value={filters.salary}
-                                            onValueChange={value => setFilters({ ...filters, salary: value })}
-                                        />
-                                    </Col> */}
-                                    <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="12">
-                                        <Button onPress={() => { handelFilter() }} style={{ width: '100%', marginBottom: 10 }} mode="contained" color={theme.colors.primary} labelStyle={{ color: theme.colors.onPrimary }}>Apply Filters</Button>
+                                    <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="6">
+                                        <Button onPress={() => { handelFilter() }} style={{ width: '100%', marginBottom: 10 }} mode="contained">Apply Filters</Button>
+                                    </Col>
+                                    <Col style={{ alignItems: 'flex-start', justifyContent: 'center' }} xs="6">
+                                        <Button onPress={() => { resetFilter() }} style={{ width: '100%', marginBottom: 10 }} mode="outlined">Reset Filters</Button>
                                     </Col>
                                 </Row>
-                            </Container>
+                            
                         </ScrollView>
                     </View>
                 </View>
