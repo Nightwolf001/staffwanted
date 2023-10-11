@@ -26,7 +26,7 @@ const Landing: FC = () => {
                     if (user.account_complete === true) {
                         navigation.navigate('TabNavigation', { screen: 'Home' });
                     } else if (user.account_complete === false) {
-                        navigation.navigate('CreateProfile');
+                        navigation.navigate('CreateProfilePersonal');
                     }
                 } else if (user.user_logged_in === false) {
                     navigation.navigate('Login');

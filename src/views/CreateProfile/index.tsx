@@ -24,7 +24,6 @@ import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "..
 import { MAPS_API_KEY } from '@env';
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
-import { act } from "@testing-library/react-native";
 
 const CreateProfile: FC = () => {
 
@@ -312,8 +311,9 @@ const CreateProfile: FC = () => {
                                         key={'all_genders'}
                                         placeholder="Select Gender"
                                         dropdownContainerStyle={{ marginBottom: 0 }}
-                                        placeholderStyle={{ color: theme.colors.primary }}
-                                        dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                        dropdownIconStyle={{ top: 20 }}
+                                        labelStyle={{ top: 10, left: 5 }}
+                                        dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
                                         options={all_genders.length !== 0 && all_genders?.map((gender: { id: number, attributes: { name: string } }) => (
                                             { value: gender.id, label: gender.attributes.name }
                                         ))}
@@ -405,9 +405,10 @@ const CreateProfile: FC = () => {
                                     key={'all_job_roles'}
                                     placeholder="Interested in these job roles..."
                                     isMultiple={true}
-                                    placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownContainerStyle={{ marginBottom: 0 }}
-                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
                                     options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
                                         { value: job.id, label: job.attributes.role }
                                     ))}
@@ -435,9 +436,10 @@ const CreateProfile: FC = () => {
                             <Col style={{ marginBottom: 15}} xs="12">
                                 <Dropdown
                                     placeholder="Previous Experience"
-                                    placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownContainerStyle={{ marginBottom: 0 }}
-                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
                                     options={experiences.length !== 0 && experiences?.map((experience: { id: number, attributes: { name: string } }) => (
                                         { value: experience.id, label: experience.attributes.name }
                                     ))}
@@ -452,9 +454,10 @@ const CreateProfile: FC = () => {
                                 <Dropdown
                                     placeholder="Preferred Hours"
                                     isMultiple={true}
-                                    placeholderStyle={{ color: theme.colors.primary }}
                                     dropdownContainerStyle={{ marginBottom: 0 }}
-                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
                                     options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
                                         { value: hours.id, label: hours.attributes.name }
                                     ))}

@@ -22,10 +22,6 @@ const Login: FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const coord = useContext(AppLocationContext);
-
-    const user = useSelector((state: RootState) => state.userSlice.user);
-    console.log('useSelector user', user);
-
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [password_visible, setPasswordVisible] = useState<boolean>(true);
@@ -39,8 +35,6 @@ const Login: FC = () => {
     const handleLogin = async () => {
         setSubmitting(true);
         let {user, jwt} = await loginAccount(coord, email, password);
-        console.log('loginAccount', user);
-        console.log('loginAccount jwt', jwt);
         setSubmitting(false);
 
             if(user.blocked) {
@@ -51,24 +45,15 @@ const Login: FC = () => {
                 await AsyncStorage.setItem('user_id', JSON.stringify(user.profile_id));
                 await updateProfile(user.profile_id, {user_logged_in: true})
                 let { data } = await fetchProfile(user.profile_id);
-                
                 let { attributes } = data;
-                user = attributes
-                user.id = data.id
-                user.gender = attributes.gender.data.id;
-                user.experience = attributes.experience.data.id;
-                user.preferred_hours = _.map(attributes.preferred_hours.data, 'id');
-                user.job_roles = _.map(attributes.job_roles.data, 'id');
-
-                console.log('fetchLoggedInUser profile', user);
-
-                dispatch(setUser(user));
-                navigation.navigate('TabNavigation', { screen: 'Home' });
+                console.log('fetchLoggedInUser profile', attributes);
+                dispatch(setUser(attributes));
+                if (attributes.account_complete) {
+                    navigation.navigate('TabNavigation', { screen: 'Home' });
+                } else {
+                    navigation.navigate('CreateProfilePersonal');
+                }
             }
-
-       
-
-        // navigation.navigate('TabNavigation', { screen: 'Home' });
     }
 
     return (

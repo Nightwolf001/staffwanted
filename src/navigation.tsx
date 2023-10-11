@@ -9,10 +9,13 @@ import Login from './views/Login';
 import SignUp from './views/SignUp';
 import Welcome from './views/Welcome';
 import Landing from './views/Landing';
-import CreateProfile from './views/CreateProfile';
-import CreateProfileVideo from './views/CreateProfileVideo';
 
 // Authenticated Screens
+import CreateProfile from './views/CreateProfile';
+import CreateProfileCriteria from './views/CreateProfileCriteria';
+import CreateProfilePersonal from './views/CreateProfilePersonal';
+import CreateProfileVideo from './views/CreateProfileVideo';
+
 import Home from "./views/Home";
 import Inbox from "./views/Inbox";
 import Jobs from "./views/Jobs";
@@ -176,6 +179,16 @@ const AppContainer = () => {
                 <Stack.Screen
                     name="CreateProfile"
                     component={CreateProfile}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="CreateProfileCriteria"
+                    component={CreateProfileCriteria}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="CreateProfilePersonal"
+                    component={CreateProfilePersonal}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

@@ -1,4 +1,4 @@
-import { Job, Employer } from "./jobs.interface";
+import { Job, Employer } from "./";
 
 export type RootStackParamList = {
     Landing: undefined;
@@ -6,6 +6,8 @@ export type RootStackParamList = {
     Login: undefined;
     SignUp: undefined;
     CreateProfile: undefined;
+    CreateProfilePersonal: undefined;
+    CreateProfileCriteria: undefined;
     CreateProfileVideo: undefined;
     TabNavigation: undefined;
     Job: Job;

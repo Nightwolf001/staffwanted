@@ -50,12 +50,10 @@ const SignUp: FC = () => {
             await AsyncStorage.setItem('user_id', JSON.stringify(user.id));
 
             dispatch(setUser(user));
-            navigation.navigate('CreateProfile');
+            navigation.navigate('CreateProfilePersonal');
         } else {
             onToggleSnackBar();
         }
-
-        // navigation.navigate('TabNavigation', { screen: 'Home' });
     }
 
     return (

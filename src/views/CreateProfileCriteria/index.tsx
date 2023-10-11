@@ -1,0 +1,400 @@
+import React, { FC, useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+
+import moment from 'moment';
+import { RNCamera } from 'react-native-camera';
+import Dropdown from 'react-native-input-select';
+import ActionSheet from 'react-native-actions-sheet';
+import { ActionSheetRef } from 'react-native-actions-sheet';
+import { DatePickerModal } from 'react-native-paper-dates';
+import { Container, Row, Col } from 'react-native-flex-grid';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
+import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
+
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { User } from '../../types';
+import { updateProfile, createProfile, uploadFile, uploadAvatarFile } from "../../actions/account.actions";
+import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
+
+import { styles } from "../../theme/styles";
+import { setUser } from "../../redux/reducers/user.reducer";
+
+const CreateProfileCriteria: FC = () => {
+
+    let cameraRef = useRef<any>();
+    const actionSheetRef = useRef<ActionSheetRef>(null);
+
+    const theme = useTheme();
+    const dispatch = useDispatch();
+    const user_state = useSelector((state: RootState) => state.userSlice.user);
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+
+    const [all_job_roles, setAllJobRoles] = useState<any>([]);
+    const [preferred_hours, setPreferredHours] = useState<any>([]);
+    const [experiences, setExperiences] = useState<any>([]);
+    const [date_start_open, setDateStartOpen] = useState(false);
+    const [date_end_open, setDateEndOpen] = useState(false);
+    const [modal_visible, setModalVisible] = useState<boolean>(false);
+
+    const [start_date, setStartDate] = useState<any>(null);
+    const [end_date, setEndDate] = useState<any>(null);
+
+    const [user, setUserData] = useState<User>(user_state);
+    const [submitting, setSubmitting] = useState<boolean>(false);
+
+    useEffect(() => {
+        (async () => {
+
+            let jobs = await fetchJobRoles();
+            setAllJobRoles(jobs?.data);
+
+            let experiences = await fetchPreviousExperiences();
+            setExperiences(experiences?.data);
+
+            let preferredHours = await fetchPreferredHours();
+            setPreferredHours(preferredHours?.data);
+
+            setStartDate('');
+            setEndDate('');
+
+
+        })()
+    }, []);
+
+    console.log('setUserData', user);
+
+    const handleDateStartSave = (start_date: any) => {
+        const momentDate = moment(start_date.date);
+        if (!momentDate.isValid()) {
+            console.log('Invalid date');
+            return;
+        }
+        const formattedDate = momentDate.format('DD-MM-YYYY');
+
+        setStartDate(formattedDate);
+        setUserData({ ...user, start_date: formattedDate });
+        setDateStartOpen(false);
+    };
+    const handleDateStartCancel = () => {
+        setDateStartOpen(false);
+    };
+
+    const handleDateEndSave = (end_date: any) => {
+        const momentDate = moment(end_date.date);
+        if (!momentDate.isValid()) {
+            console.log('Invalid date');
+            return;
+        }
+        const formattedDate = momentDate.format('DD-MM-YYYY');
+
+        setEndDate(formattedDate);
+        setUserData({ ...user, end_date: formattedDate });
+        setDateEndOpen(false);
+    };
+    const handleDateEndCancel = () => {
+        setDateEndOpen(false);
+    };
+
+    const handleCreateProfile = async () => {
+        setSubmitting(true);
+        
+        dispatch(setUser(user));
+        let response = await createProfile(user);
+        setSubmitting(false);
+        console.log('data', response.data);
+
+        if (response !== 9001) {
+            navigation.navigate('CreateProfileVideo');
+        } else {
+            // onToggleSnackBar();
+        }
+    }
+
+    const takePicture = async () => {
+        if (cameraRef) {
+            const options = { quality: 0.1, base64: true };
+            const {uri} = await cameraRef.current.takePictureAsync(options);
+
+            let file_name = `${user.id}_avatar`
+            let file_type = 'image/jpg'
+            let image_uri = uri
+
+            let resp = await uploadFile(file_name, file_type, image_uri);
+            let avatar_id = resp[0].id;
+            let avatar_url = resp[0].url;
+
+            setUserData({ ...user, avatar_id: avatar_id, avatar_url: avatar_url });
+            setModalVisible(false);
+            actionSheetRef.current?.hide();
+
+        }
+    };
+
+    const handleActionSheet = () => {
+        actionSheetRef.current?.show();
+    }
+
+    const launchImgLibrary = async () => {
+
+        const result = await launchImageLibrary({
+            mediaType: 'photo',
+            includeBase64: true,
+            presentationStyle: 'pageSheet'
+        });
+
+        if (result.didCancel) {
+            actionSheetRef.current?.hide();
+        } else if (result.errorCode) {
+            Alert.alert(
+                "Something went wrong!",
+                result.errorMessage,
+                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+            );
+            console.log('ImagePicker Error: ', result.errorMessage);
+        } else {
+
+            if (result?.assets?.length !== undefined && result.assets.length !== 0) {
+                setSubmitting(true);
+                for (let i = 0; i < result.assets.length; i++) {
+
+                    const asset = result.assets[i];
+                    
+
+                    const file_name = asset.fileName ?? '';
+                    const file_type = asset.type ?? '';
+                    const file_uri = asset.uri ?? '';
+                    const file_data = await uploadAvatarFile(file_name, file_type, file_uri);
+
+
+                    for (let f = 0; f < file_data.length; f++) {
+
+                        const file = file_data[f];
+                        setUserData({ ...user, avatar_id: file.id, avatar_url: file.url });
+                
+                            Alert.alert(
+                                "Success",
+                                "Profile picture updated successfully.",
+                                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+                            );
+
+                        }
+
+                    }
+                }
+            }
+    }
+    
+
+    return (
+        <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
+            <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary }}>
+                <Image source={require(`../../assets/images/logo_white.png`)} style={styles.xxs_image} />
+            </View>
+            <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+                    <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Complete your profile.</Text>
+                    <Container fluid>
+                        <Row>
+                            {all_job_roles.length !== 0 &&
+                                <Col style={{ marginBottom: 9 }} xs="12">
+                                <Dropdown
+                                    key={'all_job_roles'}
+                                    placeholder="Interested in these job roles..."
+                                    isMultiple={true}
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
+                                    options={all_job_roles.length !== 0 && all_job_roles?.map((job: { id: number, attributes: { role: string } }) => (
+                                        { value: job.id, label: job.attributes.role }
+                                    ))}
+                                    selectedValue={user.job_roles}
+                                    onValueChange={(value: any) => setUserData({ ...user, job_roles: value })}
+                                    primaryColor={theme.colors.primary}
+                                />
+                            </Col>
+                            }
+                            <Col style={{ marginBottom: 15 }} xs="12">
+                                <TextInput
+                                    mode='outlined'
+                                    label="Experience/Qualifications"
+                                    placeholder="Experience/qualifications and/or what you are doing now"
+                                    multiline={true}
+                                    maxLength={50}
+                                    outlineColor={theme.colors.primary}
+                                    outlineStyle={{ borderRadius: 15 }}
+                                    value={user.work_description}
+                                    onChangeText={(text) => setUserData({ ...user, work_description: text })}
+                                />
+                            </Col>
+                            {experiences.length !== 0 &&
+                            <Col style={{ marginBottom: 15}} xs="12">
+                                <Dropdown
+                                    placeholder="Previous Experience"
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
+                                    options={experiences.length !== 0 && experiences?.map((experience: { id: number, attributes: { name: string } }) => (
+                                        { value: experience.id, label: experience.attributes.name }
+                                    ))}
+                                    selectedValue={user.experience}
+                                    onValueChange={(value: any) => setUserData({ ...user, experience: value })}
+                                    primaryColor={theme.colors.primary}
+                                />
+                            </Col>
+                            }
+                            {preferred_hours.length !== 0 &&
+                            <Col style={{ marginBottom: 9 }} xs="12">
+                                <Dropdown
+                                    placeholder="Preferred Hours"
+                                    isMultiple={true}
+                                    dropdownContainerStyle={{ marginBottom: 0 }}
+                                    dropdownIconStyle={{ top: 20 }}
+                                    labelStyle={{ top: 10, left: 5 }}
+                                    dropdownStyle={{ borderRadius: 15, backgroundColor: theme.colors.surface, borderColor: theme.colors.primary, minHeight: 40, paddingVertical: 15 }}
+                                    options={preferred_hours.length !== 0 && preferred_hours?.map((hours: { id: number, attributes: { name: string } }) => (
+                                        { value: hours.id, label: hours.attributes.name }
+                                    ))}
+                                    selectedValue={user.preferred_hours}
+                                    onValueChange={(value: any) => setUserData({ ...user, preferred_hours: value })}
+                                    primaryColor={theme.colors.primary}
+                                />
+                            </Col> 
+                            }
+                            <Col style={{ marginBottom: 9 }} xs="12">
+                                <>
+                                    <TextInput
+                                        mode='outlined'
+                                        label="Available From"
+                                        placeholderTextColor={theme.colors.primary}
+                                        outlineColor={theme.colors.primary}
+                                        outlineStyle={{ borderRadius: 15 }}
+                                        value={start_date}
+                                        onFocus={() => setDateStartOpen(true)}
+                                        onBlur={() => setDateStartOpen(false)}
+                                        onTouchStart={() => setDateStartOpen(true)}
+                                        onTouchEnd={() => setDateStartOpen(false)}
+                                        editable={false}
+                                        right={<TextInput.Icon icon="calendar" onPress={() => setDateStartOpen(true)} />}
+                                    />
+                                    <DatePickerModal
+                                        presentationStyle="pageSheet"
+                                        locale="en-US"
+                                        visible={date_start_open}
+                                        mode="single"
+                                        onDismiss={handleDateStartCancel}
+                                        date={new Date()}
+                                        onConfirm={handleDateStartSave}
+                                        saveLabel="Save"
+                                        label="Select Available From"
+                                        animationType="slide"
+                                    />
+                                </>
+                            </Col>
+                            <Col style={{ marginBottom: 25 }} xs="12">
+                                <>
+                                    <TextInput
+                                        mode='outlined'
+                                        label="Available Until"
+                                        placeholderTextColor={theme.colors.primary}
+                                        outlineColor={theme.colors.primary}
+                                        outlineStyle={{ borderRadius: 15 }}
+                                        value={end_date}
+                                        onFocus={() => setDateEndOpen(true)}
+                                        onBlur={() => setDateEndOpen(false)}
+                                        onTouchStart={() => setDateEndOpen(true)}
+                                        onTouchEnd={() => setDateEndOpen(false)}
+                                        editable={false}
+                                        right={<TextInput.Icon icon="calendar" onPress={() => setDateEndOpen(true)} />}
+                                    />
+                                    <DatePickerModal
+                                        presentationStyle="pageSheet"
+                                        locale="en-US"
+                                        visible={date_end_open}
+                                        mode="single"
+                                        onDismiss={handleDateEndCancel}
+                                        date={new Date()}
+                                        onConfirm={handleDateEndSave}
+                                        saveLabel="Save"
+                                        label="Select Available Until"
+                                        animationType="slide"
+                                    />
+                                </>
+                            </Col>
+                            <Col style={{ marginBottom: 35 }} xs="12">
+                                <Button uppercase={true} mode="contained" loading={submitting} onPress={() => handleCreateProfile()}>
+                                    Save Search Criteria
+                                </Button>
+                            </Col>  
+                        </Row>
+                    </Container>
+                </ScrollView>
+            </View>
+
+            <Modal
+                style={styles.wrapper}
+                animationType="slide"
+                transparent={false}
+                visible={modal_visible}
+                onRequestClose={() => console.log('Modal closed')}
+                presentationStyle={"pageSheet"}
+            >
+
+                <TouchableOpacity style={styles.modal_btn_left} onPress={() => setModalVisible(false)} >
+                    <Text style={[styles.modal_txt, { color: theme.colors.primary }]}>Close</Text>
+                </TouchableOpacity>
+
+                <RNCamera
+                    ref={cameraRef}
+                    style={[ { flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: theme.colors.primary, width: '100%' }]}
+                    type={RNCamera.Constants.Type.front}
+                    captureAudio={true}
+                    androidCameraPermissionOptions={{
+                        title: 'Permission to use camera',
+                        message: 'We need your permission to use your camera',
+                        buttonPositive: 'Ok',
+                        buttonNegative: 'Cancel',
+                    }}
+                >                      
+                    <IconButton
+                        style={{ position: 'absolute', bottom: 20, backgroundColor: theme.colors.onPrimary }}
+                        icon="camera"
+                        iconColor={theme.colors.primary}
+                        size={50}
+                        onPress={() => takePicture()}
+                    />
+                </RNCamera>
+            </Modal>
+
+            <ActionSheet ref={actionSheetRef}>
+                <Container fluid>
+                    <Row style={{ padding: 16 }}>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => takePicture()}>
+                                Take new picture
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => launchImgLibrary()}>
+                                Choose from camera roll
+                            </Button>
+                        </Col>
+                        <Col xs="12">
+                            <Button style={{ marginTop: 30 }} mode="outlined" onPress={() => actionSheetRef.current?.hide()}>
+                                Cancel
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </ActionSheet>
+
+        </View>
+    );
+};
+
+export default CreateProfileCriteria;
