@@ -128,7 +128,6 @@ export const fetchProfile = async (profile_id: Number) => {
     try {
 
         const { data } = await axiosInstance.get(`${API_BASE}/employees/${profile_id}`);
-
         console.log('fetchProfile response', data);
         return data;
 

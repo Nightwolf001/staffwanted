@@ -4,14 +4,11 @@ import { RootState } from '../../redux/store';
 
 import moment from 'moment';
 import Dropdown from 'react-native-input-select';
-import ActionSheet from 'react-native-actions-sheet';
-import { ActionSheetRef } from 'react-native-actions-sheet';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { useTheme, TextInput, Button, Text } from 'react-native-paper';
-import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
-import DocumentPicker, { DirectoryPickerResponse, DocumentPickerResponse, isCancel, isInProgress, types } from 'react-native-document-picker'
+import { View, Image, ScrollView, Alert } from "react-native";
+import DocumentPicker, { types } from 'react-native-document-picker'
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,8 +21,6 @@ import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
 
 const CreateProfileCriteria: FC = () => {
-
-    const actionSheetRef = useRef<ActionSheetRef>(null);
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -44,8 +39,6 @@ const CreateProfileCriteria: FC = () => {
     const [user, setUserData] = useState<User>(user_state);
     const [submitting, setSubmitting] = useState<boolean>(false);
 
-    const [cv_result, setCVResult] = useState<Array<DocumentPickerResponse> | DirectoryPickerResponse | undefined | null>()
-
     useEffect(() => {
         (async () => {
 
@@ -63,8 +56,6 @@ const CreateProfileCriteria: FC = () => {
 
         })()
     }, []);
-
-    console.log('setUserData', user);
 
     const handleDateStartSave = (start_date: any) => {
         const momentDate = moment(start_date.date);
@@ -128,7 +119,6 @@ const CreateProfileCriteria: FC = () => {
                 type: types.pdf
             })
             
-            
             let file_name = pickerResult.name ?? "cv file";
             let file_type = pickerResult.type ?? "application/pdf";
             let file_uri = pickerResult.uri ?? "";
@@ -146,7 +136,7 @@ const CreateProfileCriteria: FC = () => {
                     Alert.alert(
                         "Success",
                         "CV updated successfully.",
-                        [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+                        [{ text: "OK", onPress: () => console.log("OK Pressed") }]
                     );
 
                 }
@@ -156,10 +146,6 @@ const CreateProfileCriteria: FC = () => {
         } catch (e) {
             console.log('e', e)
         }
-    }
-
-    const handleActionSheet = () => {
-        actionSheetRef.current?.show();
     }
 
     return (
@@ -239,23 +225,21 @@ const CreateProfileCriteria: FC = () => {
                                 />
                             </Col> 
                             }
-                            <Col style={{ marginBottom: 9 }} xs="12">
-                                <>
-                                    <TextInput
-                                        mode='outlined'
-                                        label="Upload CV"
-                                        placeholderTextColor={theme.colors.primary}
-                                        outlineColor={theme.colors.primary}
-                                        outlineStyle={{ borderRadius: 15 }}
-                                        value={user.cv_file_name}
-                                        onFocus={() => handelPickCV()}
-                                        onBlur={() => handelPickCV()}
-                                        onTouchStart={() => handelPickCV()}
-                                        onTouchEnd={() => handelPickCV()}
-                                        editable={false}
-                                        right={<TextInput.Icon icon="file-outline" onPress={() => handelPickCV()} />}
-                                    />
-                                </>
+                            <Col style={{ marginBottom: 9 }} xs="12">                                
+                                <TextInput
+                                    mode='outlined'
+                                    label="Upload CV"
+                                    multiline={true}
+                                    outlineColor={theme.colors.primary}
+                                    outlineStyle={{ borderRadius: 15 }}
+                                    value={user.cv_file_name}
+                                    onFocus={() => handelPickCV()}
+                                    onBlur={() => handelPickCV()}
+                                    onTouchStart={() => handelPickCV()}
+                                    onTouchEnd={() => handelPickCV()}
+                                    editable={false}
+                                    right={<TextInput.Icon icon="file-outline" onPress={() => handelPickCV()} />}
+                                />
                             </Col>
                             <Col style={{ marginBottom: 9 }} xs="12">
                                 <>
@@ -326,24 +310,6 @@ const CreateProfileCriteria: FC = () => {
                     </Container>
                 </ScrollView>
             </View>
-
-            <ActionSheet ref={actionSheetRef}>
-                <Container fluid>
-                    <Row style={{ padding: 16 }}>
-                        <Col xs="12">
-                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => actionSheetRef.current?.hide()}>
-                                Choose CV File
-                            </Button>
-                        </Col>
-                        <Col xs="12">
-                            <Button style={{ marginTop: 30 }} mode="outlined" onPress={() => actionSheetRef.current?.hide()}>
-                                Cancel
-                            </Button>
-                        </Col>
-                    </Row>
-                </Container>
-            </ActionSheet>
-
         </View>
     );
 };

@@ -14,6 +14,7 @@ import ActionSheet from "react-native-actions-sheet";
 import { ActionSheetRef } from "react-native-actions-sheet";
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
+import DocumentPicker, { types } from 'react-native-document-picker'
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
@@ -235,6 +236,43 @@ const Profile: FC = () => {
         }
     }
 
+    const handelPickCV = async () => {
+        try {
+            const pickerResult = await DocumentPicker.pickSingle({
+                presentationStyle: 'fullScreen',
+                copyTo: 'cachesDirectory',
+                type: types.pdf
+            })
+
+            let file_name = pickerResult.name ?? "cv file";
+            let file_type = pickerResult.type ?? "application/pdf";
+            let file_uri = pickerResult.uri ?? "";
+            const file_data = await uploadFile(file_name, file_type, file_uri);
+
+            for (let f = 0; f < file_data.length; f++) {
+
+                const file = file_data[f];
+                const { data } = await updateProfile(user.id, { cv_id: file.id, cv_url: file.url, cv_file_name: file.name });
+                if (data) {
+
+                    dispatch(setUser(data.attributes));
+                    setUserData({ ...user_data, cv_file_name: data.attributes.cv_file_name });
+                    setSubmitting(false);
+                    Alert.alert(
+                        "Success",
+                        "CV updated successfully.",
+                        [{ text: "OK", onPress: () => console.log("OK Pressed") }]
+                    );
+
+                }
+
+            }
+
+        } catch (e) {
+            console.log('e', e)
+        }
+    }
+
     // add dates I cant work on
     // add CV
     // add video
@@ -280,7 +318,6 @@ const Profile: FC = () => {
             </View>
             <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
                 <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-                    {/* <Text style={[styles.text_light_blue_heading, { paddingTop: 10 }]} variant="headlineSmall">Manage your profile</Text> */}
                     <Container fluid>
                         <SegmentedButtons
                             value={section}
@@ -363,6 +400,24 @@ const Profile: FC = () => {
                                         />
                                     </Col>
                                 }
+                                <Col style={{ marginBottom: 9 }} xs="12">
+                                    <>
+                                        <TextInput
+                                            mode='outlined'
+                                            label="CV"
+                                            multiline={true}
+                                            outlineColor={theme.colors.primary}
+                                            outlineStyle={{ borderRadius: 15 }}
+                                            value={user_data.cv_file_name}
+                                            onFocus={() => handelPickCV()}
+                                            onBlur={() => handelPickCV()}
+                                            onTouchStart={() => handelPickCV()}
+                                            onTouchEnd={() => handelPickCV()}
+                                            editable={false}
+                                            right={<TextInput.Icon icon="file-outline" onPress={() => handelPickCV()} />}
+                                        />
+                                    </>
+                                </Col>
                                 <Col style={{ marginBottom: 15 }} xs="12">
                                     <TextInput
                                         label={'Description'}

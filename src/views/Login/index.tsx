@@ -9,7 +9,7 @@ import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { setUser } from '../../redux/reducers/user.reducer';
-import { loginAccount, fetchProfile, updateProfile } from "../../actions/account.actions";
+import { loginAccount, updateProfile } from "../../actions/account.actions";
 import { AppLocationContext } from '../../context/appLocationContext';
 
 import { styles } from "../../theme/styles";
@@ -43,10 +43,8 @@ const Login: FC = () => {
             } else {
                 await AsyncStorage.setItem('token', jwt);
                 await AsyncStorage.setItem('user_id', JSON.stringify(user.profile_id));
-                await updateProfile(user.profile_id, {user_logged_in: true})
-                let { data } = await fetchProfile(user.profile_id);
+                let { data } = await updateProfile(user.profile_id, {user_logged_in: true})
                 let { attributes } = data;
-                console.log('fetchLoggedInUser profile', attributes);
                 dispatch(setUser(attributes));
                 if (attributes.account_complete) {
                     navigation.navigate('TabNavigation', { screen: 'Home' });

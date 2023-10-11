@@ -74,14 +74,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
                 let { attributes } = data;
                 user = attributes
                 user.id = profile_id;
-                console.log('================ here ===================')
                 user.gender = attributes.gender.data ? attributes.gender.data.id : 0;
                 user.experience = attributes.experience.data ? attributes.experience.data.id : 0;
                 user.preferred_hours = attributes.preferred_hours.data.lenght !== 0 ? _.map(attributes.preferred_hours.data, 'id') : []
                 user.job_roles = attributes.job_roles.data.lenght !== 0 ? _.map(attributes.job_roles.data, 'id') : []
-
-                console.log('fetchLoggedInUser profile', user);
-
                 dispatch(setUser(user));
             }
 
