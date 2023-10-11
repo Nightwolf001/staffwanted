@@ -34,8 +34,7 @@ const CreateProfilePersonal: FC = () => {
     const isFocused = useIsFocused();
     const user_state = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-
-    
+   
     const [all_genders, setAllGenders] = useState<any>([]);
     const [date_dob_open, setDateDobOpen] = useState(false);
     const [modal_visible, setModalVisible] = useState<boolean>(false);
@@ -68,7 +67,6 @@ const CreateProfilePersonal: FC = () => {
         })()
     }, [isFocused]);
 
-    console.log('user', user)
     const handleDateDobSave = (dob : any) => {
         const momentDate = moment(dob.date);
         if (!momentDate.isValid()) {

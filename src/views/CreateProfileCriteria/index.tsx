@@ -3,21 +3,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
 import moment from 'moment';
-import { RNCamera } from 'react-native-camera';
 import Dropdown from 'react-native-input-select';
 import ActionSheet from 'react-native-actions-sheet';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { useTheme, TextInput, Button, Text } from 'react-native-paper';
 import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, Avatar } from 'react-native-paper';
+import DocumentPicker, { DirectoryPickerResponse, DocumentPickerResponse, isCancel, isInProgress, types } from 'react-native-document-picker'
 
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
-import { updateProfile, createProfile, uploadFile, uploadAvatarFile } from "../../actions/account.actions";
+import { updateProfile, uploadFile } from "../../actions/account.actions";
 import { fetchJobRoles, fetchPreviousExperiences, fetchPreferredHours } from "../../actions/jobs.actions";
 
 import { styles } from "../../theme/styles";
@@ -25,7 +25,6 @@ import { setUser } from "../../redux/reducers/user.reducer";
 
 const CreateProfileCriteria: FC = () => {
 
-    let cameraRef = useRef<any>();
     const actionSheetRef = useRef<ActionSheetRef>(null);
 
     const theme = useTheme();
@@ -38,13 +37,14 @@ const CreateProfileCriteria: FC = () => {
     const [experiences, setExperiences] = useState<any>([]);
     const [date_start_open, setDateStartOpen] = useState(false);
     const [date_end_open, setDateEndOpen] = useState(false);
-    const [modal_visible, setModalVisible] = useState<boolean>(false);
 
     const [start_date, setStartDate] = useState<any>(null);
     const [end_date, setEndDate] = useState<any>(null);
 
     const [user, setUserData] = useState<User>(user_state);
     const [submitting, setSubmitting] = useState<boolean>(false);
+
+    const [cv_result, setCVResult] = useState<Array<DocumentPickerResponse> | DirectoryPickerResponse | undefined | null>()
 
     useEffect(() => {
         (async () => {
@@ -60,7 +60,6 @@ const CreateProfileCriteria: FC = () => {
 
             setStartDate('');
             setEndDate('');
-
 
         })()
     }, []);
@@ -99,95 +98,69 @@ const CreateProfileCriteria: FC = () => {
         setDateEndOpen(false);
     };
 
-    const handleCreateProfile = async () => {
+    const handleUpdateProfile = async () => {
         setSubmitting(true);
-        
-        dispatch(setUser(user));
-        let response = await createProfile(user);
-        setSubmitting(false);
-        console.log('data', response.data);
-
-        if (response !== 9001) {
-            navigation.navigate('CreateProfileVideo');
+        console.log('user.id', user_state.id)
+        const { data } = await updateProfile(user_state.id, user);
+        if (data) {
+            dispatch(setUser(data.attributes));
+            setUserData(data.attributes);
+            setSubmitting(false);
+            Alert.alert(
+                "Success",
+                "Search criteria updated successfully.",
+                [{ text: "OK", onPress: () => navigation.navigate('CreateProfileVideo') }]
+            );
         } else {
-            // onToggleSnackBar();
+            Alert.alert(
+                "Something went wrong!",
+                "Please try again later.",
+                [{ text: "OK", onPress: () => setSubmitting(false) }]
+            );
         }
     }
 
-    const takePicture = async () => {
-        if (cameraRef) {
-            const options = { quality: 0.1, base64: true };
-            const {uri} = await cameraRef.current.takePictureAsync(options);
+    const handelPickCV = async () => {
+        try {
+            const pickerResult = await DocumentPicker.pickSingle({
+                presentationStyle: 'fullScreen',
+                copyTo: 'cachesDirectory',
+                type: types.pdf
+            })
+            
+            
+            let file_name = pickerResult.name ?? "cv file";
+            let file_type = pickerResult.type ?? "application/pdf";
+            let file_uri = pickerResult.uri ?? "";
+            const file_data = await uploadFile(file_name, file_type, file_uri);
 
-            let file_name = `${user.id}_avatar`
-            let file_type = 'image/jpg'
-            let image_uri = uri
+            for (let f = 0; f < file_data.length; f++) {
 
-            let resp = await uploadFile(file_name, file_type, image_uri);
-            let avatar_id = resp[0].id;
-            let avatar_url = resp[0].url;
+                const file = file_data[f];
+                const { data } = await updateProfile(user_state.id, { cv_id: file.id, cv_url: file.url, cv_file_name: file.name });
+                if (data) {
 
-            setUserData({ ...user, avatar_id: avatar_id, avatar_url: avatar_url });
-            setModalVisible(false);
-            actionSheetRef.current?.hide();
+                    dispatch(setUser(data.attributes));
+                    setUserData({ ...user, cv_file_name: data.attributes.cv_file_name });
+                    setSubmitting(false);
+                    Alert.alert(
+                        "Success",
+                        "CV updated successfully.",
+                        [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
+                    );
 
+                }
+
+            }
+
+        } catch (e) {
+            console.log('e', e)
         }
-    };
+    }
 
     const handleActionSheet = () => {
         actionSheetRef.current?.show();
     }
-
-    const launchImgLibrary = async () => {
-
-        const result = await launchImageLibrary({
-            mediaType: 'photo',
-            includeBase64: true,
-            presentationStyle: 'pageSheet'
-        });
-
-        if (result.didCancel) {
-            actionSheetRef.current?.hide();
-        } else if (result.errorCode) {
-            Alert.alert(
-                "Something went wrong!",
-                result.errorMessage,
-                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
-            );
-            console.log('ImagePicker Error: ', result.errorMessage);
-        } else {
-
-            if (result?.assets?.length !== undefined && result.assets.length !== 0) {
-                setSubmitting(true);
-                for (let i = 0; i < result.assets.length; i++) {
-
-                    const asset = result.assets[i];
-                    
-
-                    const file_name = asset.fileName ?? '';
-                    const file_type = asset.type ?? '';
-                    const file_uri = asset.uri ?? '';
-                    const file_data = await uploadAvatarFile(file_name, file_type, file_uri);
-
-
-                    for (let f = 0; f < file_data.length; f++) {
-
-                        const file = file_data[f];
-                        setUserData({ ...user, avatar_id: file.id, avatar_url: file.url });
-                
-                            Alert.alert(
-                                "Success",
-                                "Profile picture updated successfully.",
-                                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
-                            );
-
-                        }
-
-                    }
-                }
-            }
-    }
-    
 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
@@ -200,7 +173,7 @@ const CreateProfileCriteria: FC = () => {
                     <Container fluid>
                         <Row>
                             {all_job_roles.length !== 0 &&
-                                <Col style={{ marginBottom: 9 }} xs="12">
+                            <Col style={{ marginBottom: 9 }} xs="12">
                                 <Dropdown
                                     key={'all_job_roles'}
                                     placeholder="Interested in these job roles..."
@@ -270,6 +243,24 @@ const CreateProfileCriteria: FC = () => {
                                 <>
                                     <TextInput
                                         mode='outlined'
+                                        label="Upload CV"
+                                        placeholderTextColor={theme.colors.primary}
+                                        outlineColor={theme.colors.primary}
+                                        outlineStyle={{ borderRadius: 15 }}
+                                        value={user.cv_file_name}
+                                        onFocus={() => handelPickCV()}
+                                        onBlur={() => handelPickCV()}
+                                        onTouchStart={() => handelPickCV()}
+                                        onTouchEnd={() => handelPickCV()}
+                                        editable={false}
+                                        right={<TextInput.Icon icon="file-outline" onPress={() => handelPickCV()} />}
+                                    />
+                                </>
+                            </Col>
+                            <Col style={{ marginBottom: 9 }} xs="12">
+                                <>
+                                    <TextInput
+                                        mode='outlined'
                                         label="Available From"
                                         placeholderTextColor={theme.colors.primary}
                                         outlineColor={theme.colors.primary}
@@ -327,7 +318,7 @@ const CreateProfileCriteria: FC = () => {
                                 </>
                             </Col>
                             <Col style={{ marginBottom: 35 }} xs="12">
-                                <Button uppercase={true} mode="contained" loading={submitting} onPress={() => handleCreateProfile()}>
+                                <Button uppercase={true} mode="contained" loading={submitting} onPress={() => handleUpdateProfile()}>
                                     Save Search Criteria
                                 </Button>
                             </Col>  
@@ -336,52 +327,12 @@ const CreateProfileCriteria: FC = () => {
                 </ScrollView>
             </View>
 
-            <Modal
-                style={styles.wrapper}
-                animationType="slide"
-                transparent={false}
-                visible={modal_visible}
-                onRequestClose={() => console.log('Modal closed')}
-                presentationStyle={"pageSheet"}
-            >
-
-                <TouchableOpacity style={styles.modal_btn_left} onPress={() => setModalVisible(false)} >
-                    <Text style={[styles.modal_txt, { color: theme.colors.primary }]}>Close</Text>
-                </TouchableOpacity>
-
-                <RNCamera
-                    ref={cameraRef}
-                    style={[ { flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: theme.colors.primary, width: '100%' }]}
-                    type={RNCamera.Constants.Type.front}
-                    captureAudio={true}
-                    androidCameraPermissionOptions={{
-                        title: 'Permission to use camera',
-                        message: 'We need your permission to use your camera',
-                        buttonPositive: 'Ok',
-                        buttonNegative: 'Cancel',
-                    }}
-                >                      
-                    <IconButton
-                        style={{ position: 'absolute', bottom: 20, backgroundColor: theme.colors.onPrimary }}
-                        icon="camera"
-                        iconColor={theme.colors.primary}
-                        size={50}
-                        onPress={() => takePicture()}
-                    />
-                </RNCamera>
-            </Modal>
-
             <ActionSheet ref={actionSheetRef}>
                 <Container fluid>
                     <Row style={{ padding: 16 }}>
                         <Col xs="12">
-                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => takePicture()}>
-                                Take new picture
-                            </Button>
-                        </Col>
-                        <Col xs="12">
-                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => launchImgLibrary()}>
-                                Choose from camera roll
+                            <Button style={{ marginTop: 10 }} icon="file-image-plus" mode="contained" onPress={() => actionSheetRef.current?.hide()}>
+                                Choose CV File
                             </Button>
                         </Col>
                         <Col xs="12">

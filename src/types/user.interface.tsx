@@ -25,6 +25,9 @@ export interface User {
     profile_boosted: boolean;
     user_logged_in ?: boolean;
     place_id ?: string;
+    cv_id ?: number;
+    cv_url ?: string;
+    cv_file_name ?: string;
 };
 
 // previous-experiences
