@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 
 import { View, Image, ScrollView, Modal, TouchableOpacity, Alert } from "react-native";
-import { useTheme, TextInput, Button, Text, IconButton, Avatar, Switch } from 'react-native-paper';
+import { useTheme, TextInput, Button, Text, IconButton, SegmentedButtons, Surface } from 'react-native-paper';
 
 import { Container, Row, Col } from 'react-native-flex-grid';
 
@@ -19,10 +19,12 @@ const Inbox: FC = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
+
     const [menu_visible, setMenuVisible] = React.useState(false);
     const user = useSelector((state: RootState) => state.userSlice.user);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
+    const [section, setSection] = useState('notifications');
 
     useEffect(() => {
         (async () => {
@@ -51,9 +53,34 @@ const Inbox: FC = () => {
                     </Row>
                 </Container>
             </View>
-            <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary }]}>
-                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+            <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary, padding: 16 }]}>
+                <SegmentedButtons
+                    value={section}
+                    onValueChange={setSection}
+                    buttons={[
+                        {
+                            value: 'notifications',
+                            label: 'Notifications',
+                            checkedColor: theme.colors.primary,
+                            uncheckedColor: theme.colors.primary,
+                        },
+                        {
+                            value: 'inbox',
+                            label: 'Inbox',
+                            checkedColor: theme.colors.primary,
+                            uncheckedColor: theme.colors.primary,
 
+                        },
+                    ]}
+                />
+                <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}> 
+                    <Row>
+                        <Col xs="12" style={{paddingVertical: 16}}>
+                            <Surface mode="elevated" elevation={1} style={{ padding: 16, borderRadius: 15, backgroundColor: "#fafafa" }}>
+                                <Text style={[{ marginBottom: 0, fontWeight: 'bold', color: theme.colors.primary }]} variant="headlineMedium">No notifications</Text>
+                            </Surface>
+                        </Col>
+                    </Row>
                 </ScrollView>
             </View>
 

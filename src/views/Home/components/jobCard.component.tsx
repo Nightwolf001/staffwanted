@@ -25,7 +25,7 @@ const JobCard = ({ job, navigation, filterd_coord, fetchAllJobData }: JobCardPro
 
     if(!job) return
     const { attributes } = job;
-    const { title, job_avatar_uri, employer, salary, location, bookmarked, coord } = attributes;
+    const { title, job_avatar_uri, employer, location, bookmarked, coord, salary_currency, salary_type, salary_value } = attributes;
 
     const [distance_from_saved_address, setDistanceFromSavedLocation] = useState<number>(0);
     const user = useSelector((state: RootState) => state.userSlice.user);
@@ -66,24 +66,25 @@ const JobCard = ({ job, navigation, filterd_coord, fetchAllJobData }: JobCardPro
     return (
         <TouchableOpacity style={[styles.job_card]} onPress={() => navigation.navigate({ name: 'Job', params: job } )}>
             <Row>
-                <Col xs="3">
-                    <Image  style={{ borderRadius: 15, width: 80, height: 80 }} source={{ uri: job_avatar_uri }} />
+                <Col xs="3" style={{ justifyContent: 'center' }}>
+                    <Image resizeMode="cover" style={{ borderRadius: 15, width: 80, height: 80 }} source={{ uri: job_avatar_uri }} />
                 </Col>
-                <Col xs="6" style={{ justifyContent: 'center' }}>
+                <Col xs="7" style={{ justifyContent: 'center' }}>
                     <Text style={[{ marginBottom: 0, color: theme.colors.primary, fontWeight: 'bold' }]} variant="labelMedium">{title}</Text>
                     <Text style={[{ marginBottom: 0, color: theme.colors.primary}]} variant="labelMedium">{employer.data.attributes.company_name}</Text>
                     <Text style={[{ marginBottom: 0, color: theme.colors.primary, fontWeight: "400" }]} variant="labelSmall">{location}</Text>
                     <Text style={[{ marginBottom: 0, color: theme.colors.primary, fontWeight: "400" }]} variant="labelSmall">{distance_from_saved_address} {METRIC} away</Text>
+                    <Text style={[{ marginBottom: 0, color: theme.colors.primary, fontWeight: 'bold' }]} variant="labelSmall">{salary_currency}{salary_value} {salary_type}</Text>
                 </Col>
-                <Col xs="3" style={{ justifyContent: 'center', alignItems: 'flex-end'}}>
+                <Col xs="2" style={{ justifyContent: 'flex-start'}}>
                     <IconButton
-                        style={{ justifyContent: 'flex-start', alignItems: 'flex-end' }}
+                        style={{ marginTop: -10 }}
                         icon={bookmarked ? "bookmark"  : "bookmark-outline"}
                         iconColor={theme.colors.primary}
                         size={30}
                         onPress={() => handleBookmark(job.id, bookmarked)}
                     />
-                    <Text style={[{ alignSelf: 'flex-end', marginBottom: 0, color: theme.colors.primary, fontWeight: 'bold', textAlign: 'right' }]} variant="labelLarge">$ {salary} p/h</Text>
+                    
                 </Col>
             </Row>
         </TouchableOpacity>

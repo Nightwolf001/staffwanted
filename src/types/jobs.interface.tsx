@@ -36,7 +36,6 @@ export interface JobAttributes {
     title: string;
     description: string;
     location: string;
-    salary: string;
     coord: Coord;
     place_id: string;
     job_avatar_uri: string;
@@ -45,6 +44,9 @@ export interface JobAttributes {
     experience: ExperienceItem;
     employer: EmployerItem;
     bookmarked: boolean;
+    salary_value: string;
+    salary_type: string;
+    salary_currency: string;
 }
 
 // job-roles

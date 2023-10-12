@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
         padding: 5,
         paddingLeft: 10,
         paddingRight: 10,
-        marginRight: 10,
+        marginLeft: 10,
     },
     job_image: {
         width: 100,

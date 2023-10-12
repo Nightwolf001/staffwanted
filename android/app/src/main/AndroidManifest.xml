@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
-    <!-- Include this only if you are planning to use the microphone for video recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
@@ -29,5 +27,6 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCIOq6AP9irHpnws64AkynY4f3B6cfWmUg"/>
     </application>
 </manifest>

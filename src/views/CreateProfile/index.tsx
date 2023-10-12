@@ -576,7 +576,7 @@ const CreateProfile: FC = () => {
                 <Container fluid>
                     <Row style={{ padding: 16 }}>
                         <Col xs="12">
-                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => takePicture()}>
+                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => setModalVisible(true)}>
                                 Take new picture
                             </Button>
                         </Col>

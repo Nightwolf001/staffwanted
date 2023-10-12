@@ -15,7 +15,7 @@ import { ActionSheetRef } from "react-native-actions-sheet";
 import { DatePickerModal } from 'react-native-paper-dates';
 import { Container, Row, Col } from 'react-native-flex-grid';
 import DocumentPicker, { types } from 'react-native-document-picker'
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import { ParamListBase, useNavigation, useIsFocused } from '@react-navigation/native';
@@ -62,6 +62,8 @@ const Profile: FC = () => {
     const [section, setSection] = useState('job');
     const [user_data, setUserData] = useState<User>(user);
     const [user_avatar, setUserAvatar] = useState<string>("");
+
+    const [camera_visible, setCameraVisible] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -164,7 +166,7 @@ const Profile: FC = () => {
                 result.errorMessage,
                 [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
             );
-            console.log('ImagePicker Error: ', result.errorMessage);
+           
         } else {
             
             if (result?.assets?.length !== undefined && result.assets.length !== 0) {
@@ -203,38 +205,40 @@ const Profile: FC = () => {
         }
     }
 
-    const launchCam = async () => {
+    const takePicture = async () => {
 
-        let result = await launchCamera({
-            mediaType: 'photo',
-            includeBase64: true,
-            presentationStyle: 'pageSheet',
-            cameraType: 'front',
-        });
+        if (cameraRef) {
+            const options = { quality: 0.2, base64: true };
+            const { uri, base64 } = await cameraRef.current.takePictureAsync(options);
 
-        console.log('launchCam result', result);
-        if (result.didCancel) {
-            actionSheetRef.current?.hide();
-        } else if (result.errorCode) {
+            console.log('uri', uri);
 
-            let error_message = result.errorMessage ?? '';
-            if (result.errorCode === 'permission') {
-                error_message = 'Please allow camera permissions in your settings.';
+            let file_name = `${user.id}_avatar`
+            let file_type = 'image/jpeg'
+            let image_uri = uri
+
+            let resp = await uploadAvatarFile(file_name, file_type, image_uri);
+            console.log('resp', JSON.stringify(resp))
+            let avatar_id = resp[0].id;
+            let avatar_url = resp[0].url;
+
+            setUserAvatar(uri);
+            const { data } = await updateProfile(user.id, { avatar_id: avatar_id, avatar_url: avatar_url });
+
+            if (data) {
+
+                dispatch(setUser(data.attributes));
+                setUserData(data.attributes);
+                setSubmitting(false);
+                Alert.alert(
+                    "Success",
+                    "Profile picture updated successfully.",
+                    [{ text: "OK", onPress: () => (setCameraVisible(false), actionSheetRef.current?.hide() )}]
+                );
+
             }
-            if (result.errorCode === 'camera_unavailable') {
-                error_message = 'Camera is not available on this device.';
-            }
-
-            Alert.alert(
-                "Something went wrong!",
-                error_message,
-                [{ text: "OK", onPress: () => actionSheetRef.current?.hide() }]
-            );
-
-        } else {
-
         }
-    }
+    };
 
     const handelPickCV = async () => {
         try {
@@ -274,7 +278,6 @@ const Profile: FC = () => {
     }
 
     // add dates I cant work on
-    // add CV
     // add video
     
     return (
@@ -624,11 +627,45 @@ const Profile: FC = () => {
                     </Container>                
                 </ScrollView>
             </View>
+            <Modal
+                style={styles.wrapper}
+                animationType="slide"
+                transparent={false}
+                visible={camera_visible}
+                onRequestClose={() => console.log('Modal closed')}
+                presentationStyle={"pageSheet"}
+            >
+
+                <TouchableOpacity style={styles.modal_btn_left} onPress={() => setCameraVisible(false)} >
+                    <Text style={[styles.modal_txt, { color: theme.colors.primary }]}>Close</Text>
+                </TouchableOpacity>
+
+                <RNCamera
+                    ref={cameraRef}
+                    style={[{ flex: 1, justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: theme.colors.primary, width: '100%' }]}
+                    type={RNCamera.Constants.Type.front}
+                    captureAudio={true}
+                    androidCameraPermissionOptions={{
+                        title: 'Permission to use camera',
+                        message: 'We need your permission to use your camera',
+                        buttonPositive: 'Ok',
+                        buttonNegative: 'Cancel',
+                    }}
+                >
+                    <IconButton
+                        style={{ position: 'absolute', bottom: 20, backgroundColor: theme.colors.onPrimary }}
+                        icon="camera"
+                        iconColor={theme.colors.primary}
+                        size={50}
+                        onPress={() => takePicture()}
+                    />
+                </RNCamera>
+            </Modal>
             <ActionSheet ref={actionSheetRef}>
                 <Container fluid>
                     <Row style={{padding: 16}}>
                         <Col xs="12">
-                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => launchCam()}>
+                            <Button style={{ marginTop: 20 }} icon="camera" mode="contained" onPress={() => setCameraVisible(true)}>
                                 Take new picture
                             </Button>
                         </Col>

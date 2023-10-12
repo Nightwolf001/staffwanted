@@ -12,11 +12,10 @@ import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { User } from '../../types';
-import { createProfile, uploadFile } from "../../actions/account.actions";
+import { updateProfile, uploadFile } from "../../actions/account.actions";
 
 import { styles } from "../../theme/styles";
 import { setUser } from "../../redux/reducers/user.reducer";
-
 
 const CreateProfileVideo: FC = () => {
     
@@ -103,49 +102,25 @@ const CreateProfileVideo: FC = () => {
         
         let resp = await uploadFile(video_name, video_type, video_uri);
         let video_id = resp[0].id;
+        let video_url = resp[0].url;
 
-        setUserData({ ...user, video_id: video_id, account_complete: true, profile_boosted: false });
-        
-        let user_object = {
-            id : user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
-            phone_number: user.phone_number,
-            location: user.location,
-            experience: user.experience,
-            preferred_hours: user.preferred_hours,
-            start_date: user.start_date,
-            end_date: user.end_date,
-            hide_profile: user.hide_profile,
-            work_description: user.work_description,
-            date_of_birth: user.date_of_birth,
-            account_complete: true,
-            video_id: video_id,
-            avatar_id: user.avatar_id,
-            coord: user.coord,
-            profile_boosted: user.profile_boosted,
-        };
-       
-        let response = await createProfile(user_object);
-        setSubmitting(false);
-        console.log('data', response.data);
-
-        if (response !== 9001) {
+        const { data } = await updateProfile(user_state.id, { video_id: video_id, video_url: video_url, account_complete: true, profile_boosted: false });
             
-            dispatch(setUser(user_object));
+        if (data) {
+            let {attributes} = data;
+            dispatch(setUser(attributes));
+            setUserData(attributes);
             setRecordingEnded(false);
             setModalVisible(false);
-             navigation.navigate('Login');
-        } else {
-                // onToggleSnackBar();
+            setSubmitting(false);
+            Alert.alert(
+                "Success",
+                "Intro video added successfully",
+                [{ text: "OK", onPress: () => navigation.navigate('Login') }]
+            );
         }
     }
 
-    const saveProfile = async () => {
-
-    }
- 
     return (
         <View style={[styles.wrapper, { backgroundColor: theme.colors.primary }]}>
             <View style={{ flex: 1, width: '100%', backgroundColor: theme.colors.primary }}>
@@ -156,13 +131,11 @@ const CreateProfileVideo: FC = () => {
                 <Text style={[styles.text_light_blue_heading, { color: theme.colors.primary }]} variant="labelLarge">(max 15sec)</Text>
                 {submitting && <ActivityIndicator size="large" color={theme.colors.primary} />}
                 <View style={[styles.container_curved, { backgroundColor: theme.colors.onPrimary, width: '100%', paddingTop: 0 }]}>
-                    
-                        <ImageBackground source={require(`../../assets/images/recording_intro.jpg`)} style={[styles.background_image, { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }]}>
-                            <Button style={{ position: 'absolute', bottom: 20 }} icon="camera" mode="contained" onPress={() => setModalVisible(true)}>
-                                Start Recording Now
-                            </Button>
-                        </ImageBackground>
-                                      
+                    <ImageBackground source={require(`../../assets/images/recording_intro.jpg`)} style={[styles.background_image, { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }]}>
+                        <Button style={{ position: 'absolute', bottom: 20 }} icon="camera" mode="contained" onPress={() => setModalVisible(true)}>
+                            Start Recording Now
+                        </Button>
+                    </ImageBackground>
                 </View>
             </View>
 

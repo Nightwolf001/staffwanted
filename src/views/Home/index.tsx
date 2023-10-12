@@ -63,6 +63,7 @@ const Home: FC = () => {
             setUser(user_data);
             setFilters({
                 ...filters,
+                id: user.id,
                 job_roles: user.job_roles,
                 experience: user.experience,
                 preferred_hours: user.preferred_hours,
@@ -74,7 +75,7 @@ const Home: FC = () => {
             }
             
         })()
-    }, [isFocused, user]);
+    }, [isFocused]);
 
     useEffect(() => {
         (async () => {
@@ -85,7 +86,7 @@ const Home: FC = () => {
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await fetchData();
+        await fetchAllJobData();
         setRefreshing(false);
     }, []);
 

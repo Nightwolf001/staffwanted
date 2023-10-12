@@ -25,7 +25,7 @@ type Props = { route: JobScreenRouteProp };
 const Job = ({ route }: Props) => {
 
     const { id, attributes } = route.params;
-    const { title, description, job_avatar_uri, employer, salary, location, preferred_hours, job_roles, coord }: JobAttributes = attributes;
+    const { title, description, job_avatar_uri, employer, salary_currency, salary_type, salary_value, location, preferred_hours, job_roles, coord }: JobAttributes = attributes;
 
     const theme = useTheme();
     const isFocused = useIsFocused();
@@ -258,7 +258,7 @@ const Job = ({ route }: Props) => {
                                 <Text style={{ fontWeight: 'bold', textAlign: 'center' }} variant="labelLarge" >{title}</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodyMedium" >{location}</Text>
                                 <Text style={{ fontWeight: '400', textAlign: 'center' }} variant="bodySmall" >{distance_from_saved_address} {METRIC} away</Text>
-                                <Text style={{ fontWeight: '400', textAlign: 'center', paddingTop: 5 }} variant="bodySmall" >${salary} p/h</Text>
+                                <Text style={{ fontWeight: '400', textAlign: 'center', paddingTop: 5 }} variant="bodySmall">{salary_currency}{salary_value} {salary_type}</Text>
                             </Col>
                             <Col xs="12" style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <View style={{ justifyContent: 'center', flexDirection: 'row', paddingTop: 10, flexWrap: 'wrap' }}>

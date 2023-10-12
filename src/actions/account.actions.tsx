@@ -181,7 +181,7 @@ export const uploadAvatarFile = async (name: string, type: string, uri: string) 
             uri: uri
         });
 
-        console.log(formData)
+        console.log(JSON.stringify(formData));
         const { data } = await axios.post(`${API_BASE}/upload`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         console.log('uploadAvatarFile response', data);
         return data;
